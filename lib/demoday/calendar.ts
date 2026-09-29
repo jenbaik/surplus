@@ -1,5 +1,5 @@
 // Surplus Demo Day event facts + calendar link / .ics builders. Imported by
-// both the client (Google / Outlook links, .ics download) and the API route
+// both the client (Google Calendar link, .ics download) and the API route
 // (METHOD:REQUEST invitation attached to the confirmation email), so no
 // server-only imports here.
 
@@ -17,6 +17,16 @@ export const EVENT = {
 
 export const CONTACT_EMAIL = "jen@moxsf.com";
 
+export const PARKING = {
+  name: "Chorus Valet Garage",
+  url: "https://spothero.com/facility/88833/30-otis-st-parking",
+  note: "a 2 min walk away",
+} as const;
+
+// Where the static .ics lives (app/demoday/invite.ics/route.ts).
+export const ICS_PATH = "/demoday/invite.ics";
+export const ICS_URL = `https://surplus.dev${ICS_PATH}`;
+
 export function editUrl(token: string): string {
   return `${EVENT.url}?r=${encodeURIComponent(token)}`;
 }
@@ -32,18 +42,6 @@ export function googleCalendarUrl(): string {
   return `https://calendar.google.com/calendar/render?${p}`;
 }
 
-export function outlookWebUrl(): string {
-  const p = new URLSearchParams({
-    path: "/calendar/action/compose",
-    rru: "addevent",
-    subject: EVENT.title,
-    location: EVENT.location,
-    body: `${EVENT.description}\n${EVENT.url}`,
-    startdt: "2026-10-23T23:00:00Z",
-    enddt: "2026-10-24T04:00:00Z",
-  });
-  return `https://outlook.live.com/calendar/0/deeplink/compose?${p}`;
-}
 
 // RFC 5545 text escaping + 75-octet line folding.
 function icsText(s: string): string {

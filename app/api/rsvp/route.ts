@@ -8,7 +8,7 @@ import { G, PATTERNS, type Rsvp } from "@/lib/demoday/fields";
 // the client form only ever see the whitelisted shapes returned below.
 
 const { email: EMAIL, inviteCode: CODE, token: TOKEN } = PATTERNS;
-const CAL_VIA = new Set(["gcal", "ics", "ocal"]);
+const CAL_VIA = new Set(["gcal", "ics"]);
 
 const s = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 

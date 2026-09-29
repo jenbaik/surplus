@@ -1,5 +1,13 @@
 import "server-only";
-import { CONTACT_EMAIL, EVENT, editUrl, icsRequest } from "@/lib/demoday/calendar";
+import {
+  CONTACT_EMAIL,
+  EVENT,
+  ICS_URL,
+  PARKING,
+  editUrl,
+  googleCalendarUrl,
+  icsRequest,
+} from "@/lib/demoday/calendar";
 import { firstName, type Guest } from "@/lib/demoday/fields";
 
 // Confirmation + edit-link emails for Demo Day, via Resend (raw REST, same
@@ -59,13 +67,16 @@ ${WHEN}
 ${WHERE}
 ${TIMINGS}
 
-The calendar invite is attached — accept it and you're set. Nearest BART is 16th St Mission.
+For parking, we recommend the ${PARKING.name} (${PARKING.url}), ${PARKING.note}.
+
+Put it in your calendar now:
+- Google Calendar: ${googleCalendarUrl()}
+- Apple Calendar / Outlook (.ics): ${ICS_URL}
+(The invitation is also attached.)
 
 Need to change your answer? Your link: ${link}
 
-Questions, or need to cancel? Reply to this email, or write to ${CONTACT_EMAIL}.
-
-— Austin, Manifund & Mox`;
+Questions? Reply to this email, or write to ${CONTACT_EMAIL}.`;
 
   return resend({
     from: FROM,
