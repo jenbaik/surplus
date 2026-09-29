@@ -23,6 +23,7 @@ export const G = {
   reminderSent: "fldIAGdBajQ8elKGf", // Reminder sent
   submittedAt: "fldqkdqsXRKkdtutO", // Submitted at
   updatedAt: "fld5YAzvOP5QsW8dB", // Updated at
+  firstName: "fldIc3nxc3eamSHer", // First name (formula, read-only; used by the automation emails)
 } as const;
 
 // filterByFormula can only reference fields by NAME, so the three lookup
