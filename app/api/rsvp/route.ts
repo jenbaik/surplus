@@ -111,11 +111,14 @@ export async function POST(req: NextRequest) {
       token: TOKEN.test(token) ? token : "",
     });
 
-    // Confirmation + calendar invite, once. A failed send must not fail the
-    // RSVP — the row is already saved; the box stays unticked so a later
-    // edit retries.
+    // Confirmation email. By default the Airtable automation on the Demo
+    // Day table sends it (from Jen's Gmail, when RSVP flips to Yes) and
+    // ticks "Confirmation sent". DEMODAY_SEND_CONFIRMATION=true switches to
+    // sending from here via Resend with a METHOD:REQUEST invite instead —
+    // needs a verified sending domain. Either way a failed send must not
+    // fail the RSVP: the row is already saved and the box stays unticked.
     let emailed = false;
-    if (rsvp !== "No" && !guest.confirmSent) {
+    if (process.env.DEMODAY_SEND_CONFIRMATION === "true" && rsvp !== "No" && !guest.confirmSent) {
       try {
         await sendConfirmation(guest);
         emailed = true;

@@ -175,7 +175,7 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
               </a>
             </div>
             <p className="mt-3 font-mono text-xs uppercase tracking-widest text-ink-dark/70">
-              Confirmation and calendar invite on their way to your inbox.
+              A confirmation is on its way to your inbox.
             </p>
           </>
         )}
