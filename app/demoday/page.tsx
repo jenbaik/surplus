@@ -6,7 +6,7 @@ import { PATTERNS } from "@/lib/demoday/fields";
 import { loadCohort, type Project } from "@/lib/demoday/cohort";
 import { prettyUrl } from "@/lib/founders";
 import { Rsvp, type Prefill } from "./rsvp";
-import { BUTTON, MONO_LINK } from "./styles";
+import { BUTTON_BASE, MONO_LINK } from "./styles";
 
 // Invite-only: not linked from anywhere, and never indexed (also enforced
 // with an X-Robots-Tag header in next.config.ts).
@@ -171,12 +171,19 @@ export default async function DemoDayPage({
             DEMO <span className="misreg-accent text-ink-pink">DAY</span>
           </h1>
 
-          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <a href="#rsvp" className={BUTTON}>
+          <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4 max-bp:mt-5 max-bp:gap-x-5">
+            <a
+              href="#rsvp"
+              className={`${BUTTON_BASE} min-w-[300px] px-12 py-3.5 text-4xl leading-none max-bp:min-w-0 max-bp:px-8 max-bp:text-3xl max-sm:w-full`}
+            >
               RSVP
             </a>
-            <span className="font-mono text-sm uppercase tracking-widest">
-              <b className="font-bold text-ink-pink">Friday, Oct 23</b> · Doors 4PM · Mox SF
+            <span className="font-condensed text-[clamp(22px,2.6vw,34px)] font-bold uppercase leading-tight tracking-wide">
+              <span className="whitespace-nowrap text-ink-pink">Friday, Oct 23</span>
+              <span className="px-2 text-ink-blue">·</span>
+              <span className="whitespace-nowrap">Doors 4PM</span>
+              <span className="px-2 text-ink-blue">·</span>
+              <span className="whitespace-nowrap">Mox SF</span>
             </span>
           </div>
 
