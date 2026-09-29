@@ -131,7 +131,7 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
     const yes = done.rsvp === "Yes";
     return (
       <div ref={doneRef} className="border-[3px] border-ink-dark bg-paper px-6 py-6 max-sm:px-4">
-        <p className="misreg m-0 font-display text-[clamp(28px,4vw,44px)] leading-[0.9] tracking-[-0.02em] text-ink-dark">
+        <p className="m-0 font-condensed text-3xl font-bold uppercase leading-none tracking-wide text-ink-dark max-bp:text-2xl">
           {yes ? `${done.first}, you\u2019re in.` : "Next time."}
         </p>
         {yes ? (
