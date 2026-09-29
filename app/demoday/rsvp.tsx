@@ -5,7 +5,7 @@
 // a personal note; an unrecognised one does nothing at all.
 
 import { useRef, useState } from "react";
-import { CONTACT_EMAIL, ICS_PATH, PARKING, googleCalendarUrl } from "@/lib/demoday/calendar";
+import { CONTACT_EMAIL, ICS_PATH, googleCalendarUrl } from "@/lib/demoday/calendar";
 import { PATTERNS, firstName, type Rsvp as Answer } from "@/lib/demoday/fields";
 import { BUTTON, BUTTON_SECONDARY, INPUT, LABEL } from "./styles";
 
@@ -136,30 +136,7 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
         </p>
         {yes ? (
           <>
-            <div className="mt-4 border-t-[1.5px] border-ink-dark pt-3">
-              <p className="m-0 font-condensed text-2xl font-bold uppercase tracking-wide text-ink-pink">
-                Friday, October 23, 2026
-              </p>
-              <p className="m-0 mt-1 font-serif text-lg leading-snug">
-                Mox SF, 1680 Mission St, San Francisco
-              </p>
-              <p className="m-0 mt-1.5 font-mono text-xs uppercase tracking-widest text-ink-dark/70">
-                Doors 4:00pm · Pitches 4:40–5:50pm · Dinner 6:00pm · Happy hour from 7:00pm
-              </p>
-            </div>
-            <p className="mt-3 max-w-[52ch] font-serif text-base leading-snug">
-              For parking, we recommend the{" "}
-              <a
-                href={PARKING.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-ink-blue underline underline-offset-2 hover:bg-ink-yellow hover:text-ink-dark hover:no-underline"
-              >
-                {PARKING.name}
-              </a>
-              , {PARKING.note}.
-            </p>
-            <p className="mt-4 font-condensed text-xl font-bold uppercase tracking-wide">
+            <p className="mt-3 font-condensed text-xl font-bold uppercase tracking-wide">
               Put it in your calendar now
             </p>
             <div className="mt-2 flex flex-wrap gap-3">
