@@ -6,7 +6,8 @@ import {
   type Applicant,
 } from "@/lib/review/fields";
 
-const API = "https://api.airtable.com/v0";
+// Overridable so local runs/tests can point at a stand-in server.
+const API = process.env.AIRTABLE_API_URL || "https://api.airtable.com/v0";
 
 function headers(): HeadersInit {
   const key = process.env.AIRTABLE_API_KEY;
@@ -14,7 +15,9 @@ function headers(): HeadersInit {
   return { Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
 }
 
-async function airtable(path: string, init?: RequestInit): Promise<unknown> {
+// Low-level authenticated request against the Airtable REST API; shared by
+// the review dashboard and the Demo Day RSVP route (lib/demoday/airtable.ts).
+export async function airtable(path: string, init?: RequestInit): Promise<unknown> {
   const res = await fetch(`${API}${path}`, { ...init, headers: headers() });
   if (!res.ok) {
     const body = await res.text();
@@ -25,7 +28,11 @@ async function airtable(path: string, init?: RequestInit): Promise<unknown> {
 
 type RawRecord = { id: string; createdTime: string; fields: Record<string, unknown> };
 
-export async function listApplicants(opts?: { view?: string }): Promise<Applicant[]> {
+export async function listApplicants(opts?: {
+  view?: string;
+  // fetch data-cache TTL (seconds); omit for uncached
+  revalidate?: number;
+}): Promise<Applicant[]> {
   const records: RawRecord[] = [];
   let offset: string | undefined;
   do {
@@ -36,7 +43,8 @@ export async function listApplicants(opts?: { view?: string }): Promise<Applican
     if (opts?.view) params.set("view", opts.view);
     if (offset) params.set("offset", offset);
     const page = (await airtable(
-      `/${BASE_ID}/${APPLICANT_TABLE_ID}?${params}`
+      `/${BASE_ID}/${APPLICANT_TABLE_ID}?${params}`,
+      opts?.revalidate ? { next: { revalidate: opts.revalidate } } : undefined
     )) as { records: RawRecord[]; offset?: string };
     records.push(...page.records);
     offset = page.offset;
