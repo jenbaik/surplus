@@ -4,11 +4,14 @@ import { firstName, type Guest } from "@/lib/demoday/fields";
 
 // Confirmation + edit-link emails for Demo Day, via Resend (raw REST, same
 // as app/api/review/email/send/route.ts). The sending address must be on a
-// domain verified in Resend (SPF + DKIM) — manifund.org is, per the review
-// dashboard's FROM options. Override with DEMODAY_FROM if a different
-// sender is wanted; ORGANIZER in the .ics is derived from it so calendar
-// clients see the invite as coming from the sender.
-const FROM = process.env.DEMODAY_FROM || "Surplus <surplus@manifund.org>";
+// domain verified in Resend (DKIM + SPF/MX on the bounce subdomain) or
+// Resend rejects the send outright. surplus.dev has no mail DNS yet
+// (checked 2026-09-29); until it's added in Resend, set DEMODAY_FROM to an
+// address on manifund.org, which is verified. The mailbox itself needn't
+// exist — replies go to CONTACT_EMAIL via reply_to. ORGANIZER in the .ics
+// is derived from the sender so calendar clients show the invite as
+// coming from it.
+const FROM = process.env.DEMODAY_FROM || "Surplus <demoday@surplus.dev>";
 const RESEND_API = process.env.RESEND_API_URL || "https://api.resend.com";
 
 function parseFrom(from: string): { name: string; email: string } {
