@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Fragment } from "react";
-import { listApplicants } from "@/lib/review/airtable";
+import { listApplicants, listHiddenApplicantIds } from "@/lib/review/airtable";
 import { ADMITTED_VIEW_ID, type Applicant } from "@/lib/review/fields";
 
 // Statically prerendered, refreshed from Airtable every 5 minutes.
@@ -195,7 +195,13 @@ function GroupLabel({ children }: { children: React.ReactNode }) {
 // -------------------- page --------------------
 
 export default async function FoundersPage() {
-  const admitted = await listApplicants({ view: ADMITTED_VIEW_ID });
+  const [applicants, hiddenIds] = await Promise.all([
+    listApplicants({ view: ADMITTED_VIEW_ID }),
+    listHiddenApplicantIds(),
+  ]);
+  // Founders marked "Hidden" in the Founders table are dropped before
+  // grouping, so a hidden founder's teammate renders as a solo founder.
+  const admitted = applicants.filter((a) => !hiddenIds.has(a.id));
   // Grouping needs record ids; everything after this line sees only the
   // whitelisted PublicFounder projection.
   const groups = groupFounders(admitted).map((g) => g.map(toPublic));

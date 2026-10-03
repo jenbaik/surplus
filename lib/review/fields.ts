@@ -8,6 +8,13 @@ export const APPLICANT_TABLE_ID = "tblsvqV1tD3rSVMfz";
 // The "Admitted" grid view: founders with status Confirmed or Acceptance sent.
 export const ADMITTED_VIEW_ID = "viwShWo4bvatGvhsH";
 
+// The Founders table (cohort ops): only the fields /founders needs.
+export const FOUNDERS_TABLE_ID = "tblpHDFfIZ621AHYk";
+export const FOUNDER_F = {
+  applicantRecord: "fld3562s1qw4FNOd4",
+  hidden: "fldcLYrjBAkGkHtbm",
+} as const;
+
 export const F = {
   name: "fld3gZ52ydW6p4Dxo",
   email: "fld4t5pg8cE0wa3Xt",
