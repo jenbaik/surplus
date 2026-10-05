@@ -179,7 +179,7 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
           Email
         </label>
         <p id="rsvp-email-hint" className="mt-0.5 font-serif text-sm italic text-ink-dark/80">
-          If we invited you by email, use that address &mdash; we&rsquo;ll pull up your invitation.
+          If we invited you by email, use that address &amp; we&rsquo;ll pull up your invitation.
         </p>
         <div className="mt-1.5 flex gap-2">
           <input

@@ -25,14 +25,14 @@ export const metadata: Metadata = {
 };
 
 const SCHEDULE: { time: string; item: string; note?: string; key?: boolean }[] = [
-  { time: "4:00", item: "Doors open", note: "Come early, meet people" },
-  { time: "4:30", item: "Host framing", note: "Austin on Surplus" },
-  { time: "4:40", item: "Pitch Block 1", note: "Four projects", key: true },
-  { time: "5:05", item: "Break", note: "Twenty minutes · eat something" },
-  { time: "5:25", item: "Pitch Block 2", note: "Four projects", key: true },
+  { time: "4:00", item: "Doors open" },
+  { time: "4:30", item: "Introduction by Austin" },
+  { time: "4:40", item: "Pitch Block 1", key: true },
+  { time: "5:05", item: "Break", note: "15 min" },
+  { time: "5:25", item: "Pitch Block 2", key: true },
   { time: "5:50", item: "Close" },
   { time: "6:00", item: "Dinner" },
-  { time: "7:00", item: "Continued mingling & happy hour", note: "Until we’re done" },
+  { time: "7:00", item: "Continued mingling & happy hour" },
 ];
 
 // ?r=<token> prefills everything (it's their magic link); ?i=<code> only
