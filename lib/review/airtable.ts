@@ -2,6 +2,8 @@ import "server-only";
 import {
   APPLICANT_TABLE_ID,
   BASE_ID,
+  FOUNDER_F,
+  FOUNDERS_TABLE_ID,
   normalizeApplicant,
   type Applicant,
 } from "@/lib/review/fields";
@@ -50,6 +52,36 @@ export async function listApplicants(opts?: {
     offset = page.offset;
   } while (offset);
   return records.map(normalizeApplicant);
+}
+
+// Applicant record ids of founders whose "Hidden" box is checked in the
+// Founders table (they're left off the public cohort pages: /founders and
+// /demoday, via lib/founders.ts).
+export async function listHiddenApplicantIds(opts?: {
+  // fetch data-cache TTL (seconds); omit for uncached
+  revalidate?: number;
+}): Promise<Set<string>> {
+  const ids = new Set<string>();
+  let offset: string | undefined;
+  do {
+    const params = new URLSearchParams({
+      returnFieldsByFieldId: "true",
+      pageSize: "100",
+      filterByFormula: `{${FOUNDER_F.hidden}}`,
+    });
+    params.append("fields[]", FOUNDER_F.applicantRecord);
+    if (offset) params.set("offset", offset);
+    const page = (await airtable(
+      `/${BASE_ID}/${FOUNDERS_TABLE_ID}?${params}`,
+      opts?.revalidate ? { next: { revalidate: opts.revalidate } } : undefined
+    )) as { records: RawRecord[]; offset?: string };
+    for (const rec of page.records) {
+      const links = rec.fields[FOUNDER_F.applicantRecord];
+      if (Array.isArray(links)) for (const id of links) ids.add(String(id));
+    }
+    offset = page.offset;
+  } while (offset);
+  return ids;
 }
 
 export async function getApplicant(id: string): Promise<Applicant> {

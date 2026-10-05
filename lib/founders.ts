@@ -1,4 +1,4 @@
-import { listApplicants } from "@/lib/review/airtable";
+import { listApplicants, listHiddenApplicantIds } from "@/lib/review/airtable";
 import { ADMITTED_VIEW_ID, type Applicant } from "@/lib/review/fields";
 
 // Data shaping for the public cohort pages (/founders, /demoday). Everything
@@ -96,7 +96,13 @@ export function groupFounders(list: Applicant[]): Applicant[][] {
 export async function loadPublicFounders(opts?: {
   revalidate?: number;
 }): Promise<PublicFounder[][]> {
-  const admitted = await listApplicants({ view: ADMITTED_VIEW_ID, ...opts });
+  const [applicants, hiddenIds] = await Promise.all([
+    listApplicants({ view: ADMITTED_VIEW_ID, ...opts }),
+    listHiddenApplicantIds(opts),
+  ]);
+  // Founders marked "Hidden" in the Founders table are dropped before
+  // grouping, so a hidden founder's teammate renders as a solo founder.
+  const admitted = applicants.filter((a) => !hiddenIds.has(a.id));
   // Grouping needs record ids; everything after this line sees only the
   // whitelisted PublicFounder projection.
   return groupFounders(admitted).map((g) => g.map(toPublic));
