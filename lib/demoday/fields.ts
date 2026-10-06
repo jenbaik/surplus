@@ -35,7 +35,8 @@ export const G_NAMES = {
   token: "Token",
 } as const;
 
-export type Rsvp = "Yes" | "No";
+export type Rsvp = "Yes" | "Maybe" | "No";
+export const RSVPS: readonly Rsvp[] = ["Yes", "Maybe", "No"];
 
 export type Guest = {
   id: string;
@@ -88,7 +89,7 @@ export function normalizeGuest(rec: RawGuestRecord): Guest {
     org: str(f[G.org]).trim(),
     note: str(f[G.personalNote]).trim(),
     inviteCode: str(f[G.inviteCode]).trim(),
-    rsvp: rsvp === "Yes" || rsvp === "No" ? rsvp : "",
+    rsvp: (RSVPS as readonly string[]).includes(rsvp) ? (rsvp as Rsvp) : "",
     diet: str(f[G.diet]).trim(),
     anything: str(f[G.anything]).trim(),
     token: str(f[G.token]).trim(),

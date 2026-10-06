@@ -68,6 +68,12 @@ async function resolveCohort(): Promise<Project[]> {
   }
 }
 
+// Shown if the cohort can't be loaded, so the head never reads "0 projects".
+const FALLBACK_COUNTS = { projects: 7, founders: 10 };
+
+const WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve"];
+const inWords = (n: number) => WORDS[n] ?? String(n);
+
 // -------------------- pieces --------------------
 
 function Chip({ accent, children }: { accent?: boolean; children: React.ReactNode }) {
@@ -152,6 +158,8 @@ export default async function DemoDayPage({
   const [projects, prefill] = await Promise.all([resolveCohort(), resolvePrefill(i, r)]);
   const inviteCode = i && PATTERNS.inviteCode.test(i) ? i : "";
   const founderCount = projects.reduce((n, p) => n + p.founders.length, 0);
+  const shownProjects = projects.length || FALLBACK_COUNTS.projects;
+  const shownFounders = projects.length ? founderCount : FALLBACK_COUNTS.founders;
 
   return (
     <>
@@ -193,12 +201,12 @@ export default async function DemoDayPage({
           </div>
 
           <p className="mt-6 max-w-[38ch] font-serif text-[clamp(24px,3vw,38px)] font-medium leading-[1.15] text-ink-dark [&_em]:italic [&_em]:text-ink-blue [&_mark]:bg-ink-yellow [&_mark]:px-1 [&_mark]:text-ink-dark">
-            Eight projects, <em>ten weeks</em>, and <mark>six minutes each</mark> to show you what
+            {inWords(shownProjects)} projects, <em>ten weeks</em>, and <mark>six minutes each</mark> to show you what
             they built.
           </p>
 
           <div className="mt-6 grid grid-cols-3 gap-4 max-bp:gap-3 max-sm:grid-cols-1">
-            <Stat n="8" label="Projects" detail="12 founders" />
+            <Stat n={String(shownProjects)} label="Projects" detail={`${shownFounders} founders`} />
             <Stat n="6" label="Minutes each" detail="Then the floor is yours" />
             <Stat n="~40" label="Guests" detail="Invite only" />
           </div>

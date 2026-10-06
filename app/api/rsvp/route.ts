@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { findGuestBy, saveRsvp, updateGuest } from "@/lib/demoday/airtable";
 import { sendConfirmation, sendEditLink } from "@/lib/demoday/email";
-import { G, PATTERNS, type Rsvp } from "@/lib/demoday/fields";
+import { G, PATTERNS, RSVPS, type Rsvp } from "@/lib/demoday/fields";
 
 // Demo Day RSVP: lookup, upsert, calendar beacon, edit-link resend. All
 // Airtable access lives here (server-side, AIRTABLE_API_KEY); the page and
@@ -90,10 +90,10 @@ export async function POST(req: NextRequest) {
   }
 
   // The RSVP itself.
-  const rsvp = body.rsvp === "No" ? "No" : body.rsvp === "Yes" ? "Yes" : null;
+  const rsvp = RSVPS.find((r) => r === body.rsvp) ?? null;
   const name = s(body.name, 200);
   const email = s(body.email, 254);
-  if (!rsvp) return Response.json({ error: "rsvp must be Yes or No" }, { status: 400 });
+  if (!rsvp) return Response.json({ error: "rsvp must be Yes, Maybe or No" }, { status: 400 });
   if (!name) return Response.json({ error: "name required" }, { status: 400 });
   if (!EMAIL.test(email)) return Response.json({ error: "valid email required" }, { status: 400 });
   const inviteCode = s(body.inviteCode, 64);
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
     // needs a verified sending domain. Either way a failed send must not
     // fail the RSVP: the row is already saved and the box stays unticked.
     let emailed = false;
-    if (process.env.DEMODAY_SEND_CONFIRMATION === "true" && rsvp !== "No" && !guest.confirmSent) {
+    if (process.env.DEMODAY_SEND_CONFIRMATION === "true" && rsvp === "Yes" && !guest.confirmSent) {
       try {
         await sendConfirmation(guest);
         emailed = true;

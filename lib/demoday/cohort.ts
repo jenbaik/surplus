@@ -9,7 +9,31 @@ const NOT_PRESENTING = new Set([
   "Theo Ryzhenkov",
   "Cecilia Roos",
   "Aniket Panjwani",
+  "Sophia Wang",
+  "Anushree Chaudhuri",
 ]);
+
+// Running order on the invite. Each entry is any one founder on the team
+// (Airtable "Name"); teams not listed follow in Admitted-view order.
+const RUNNING_ORDER = [
+  "Hudson Mitchell-Pullman",
+  "Joey Bream",
+  "Francisco Carvalho (xiq)",
+  "Haoxing Du",
+  "Derik Kauffman",
+  "Vaishnav Sunil",
+  "Beat Hagenlocher",
+];
+
+function slot(p: Project): number {
+  const i = Math.min(
+    ...p.founders.map((f) => {
+      const k = RUNNING_ORDER.indexOf(f.name);
+      return k === -1 ? Infinity : k;
+    })
+  );
+  return i;
+}
 
 // Two teams wrote separate descriptions rather than a shared one. Until the
 // founders say which they want on the invite, the card leads with this
@@ -69,5 +93,6 @@ export async function loadCohort(): Promise<Project[]> {
   return groups
     .map((g) => g.filter((f) => !NOT_PRESENTING.has(f.name)))
     .filter((g) => g.length > 0)
-    .map(toProject);
+    .map(toProject)
+    .sort((a, b) => slot(a) - slot(b));
 }

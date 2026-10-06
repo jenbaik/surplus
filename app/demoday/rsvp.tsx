@@ -6,7 +6,7 @@
 
 import { useRef, useState } from "react";
 import { CONTACT_EMAIL, ICS_PATH, googleCalendarUrl } from "@/lib/demoday/calendar";
-import { PATTERNS, firstName, type Rsvp as Answer } from "@/lib/demoday/fields";
+import { PATTERNS, RSVPS, firstName, type Rsvp as Answer } from "@/lib/demoday/fields";
 import { BUTTON, BUTTON_SECONDARY, INPUT, LABEL } from "./styles";
 
 // Resolved server-side from ?r=<token> (all answers) or ?i=<code> (name,
@@ -28,7 +28,7 @@ type Done = { rsvp: Answer; first: string; token: string };
 export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteCode: string }) {
   const [email, setEmail] = useState(prefill?.email ?? "");
   const [name, setName] = useState(prefill?.name ?? "");
-  const [rsvp, setRsvp] = useState<Answer>(prefill?.rsvp === "No" ? "No" : "Yes");
+  const [rsvp, setRsvp] = useState<Answer>(prefill?.rsvp || "Yes");
   const [diet, setDiet] = useState(prefill?.diet ?? "");
   const [anything, setAnything] = useState(prefill?.anything ?? "");
   const [note, setNote] = useState<Note | null>(
@@ -129,15 +129,16 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
 
   if (done) {
     const yes = done.rsvp === "Yes";
+    const maybe = done.rsvp === "Maybe";
     return (
       <div ref={doneRef} className="border-[3px] border-ink-dark bg-paper px-6 py-6 max-sm:px-4">
         <p className="m-0 font-condensed text-3xl font-bold uppercase leading-none tracking-wide text-ink-dark max-bp:text-2xl">
-          {yes ? `${done.first}, you\u2019re in.` : "Next time."}
+          {yes ? `${done.first}, you\u2019re in.` : maybe ? `Thanks, ${done.first}.` : "Next time."}
         </p>
-        {yes ? (
+        {yes || maybe ? (
           <>
             <p className="mt-3 font-condensed text-xl font-bold uppercase tracking-wide">
-              Put it in your calendar now
+              {yes ? "Put it in your calendar now" : "Hold the date"}
             </p>
             <div className="mt-2 flex flex-wrap gap-3">
               <a
@@ -158,9 +159,11 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
                 Apple Calendar / Outlook (.ics)
               </a>
             </div>
-            <p className="mt-3 font-mono text-xs uppercase tracking-widest text-ink-dark/70">
-              A confirmation with these links is on its way to your inbox.
-            </p>
+            {yes && (
+              <p className="mt-3 font-mono text-xs uppercase tracking-widest text-ink-dark/70">
+                A confirmation with these links is on its way to your inbox.
+              </p>
+            )}
           </>
         ) : (
           <p className="mt-3 max-w-[52ch] font-serif text-lg leading-snug">
@@ -231,8 +234,8 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
 
       <fieldset className="mt-4 border-0 p-0">
         <legend className={LABEL}>Can you make it?</legend>
-        <div className="mt-1.5 grid grid-cols-2 gap-3">
-          {(["Yes", "No"] as const).map((v) => (
+        <div className="mt-1.5 grid grid-cols-3 gap-3 max-sm:gap-2">
+          {RSVPS.map((v) => (
             <label key={v} className="cursor-pointer">
               <input
                 type="radio"
@@ -243,7 +246,7 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
                 className="peer sr-only"
               />
               <span className="block border-2 border-ink-dark bg-paper px-3 py-2 text-center font-condensed text-xl font-bold uppercase tracking-wide hover:bg-paper-deep peer-checked:bg-ink-dark peer-checked:text-paper peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink-pink motion-safe:transition-colors">
-                {v === "Yes" ? "Yes (80%)" : "No (20%)"}
+                {v}
               </span>
             </label>
           ))}
@@ -267,7 +270,7 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
         />
       </div>
 
-      {rsvp === "Yes" && (
+      {rsvp !== "No" && (
         <div className="mt-4 grid grid-cols-2 gap-4 max-sm:grid-cols-1">
           <div>
             <label htmlFor="rsvp-diet" className={LABEL}>
