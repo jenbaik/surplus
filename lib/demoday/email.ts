@@ -69,7 +69,7 @@ ${TIMINGS}
 
 For parking, we recommend the ${PARKING.name} (${PARKING.url}), ${PARKING.note}.
 
-Put it in your calendar now:
+Put it in your calendar:
 - Google Calendar: ${googleCalendarUrl()}
 - Apple Calendar / Outlook (.ics): ${ICS_URL}
 (The invitation is also attached.)

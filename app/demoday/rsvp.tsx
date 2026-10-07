@@ -100,7 +100,7 @@ export function Rsvp({ prefill }: { prefill: Prefill | null }) {
         {yes || maybe ? (
           <>
             <p className="mt-3 font-condensed text-xl font-bold uppercase tracking-wide">
-              {yes ? "Put it in your calendar now" : "Hold the date"}
+              {yes ? "Put it in your calendar" : "Hold the date"}
             </p>
             <div className="mt-2 flex flex-wrap gap-3">
               <a
