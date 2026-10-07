@@ -3,52 +3,14 @@ import { findGuestBy, saveRsvp, updateGuest } from "@/lib/demoday/airtable";
 import { sendConfirmation, sendEditLink } from "@/lib/demoday/email";
 import { G, PATTERNS, RSVPS, type Rsvp } from "@/lib/demoday/fields";
 
-// Demo Day RSVP: lookup, upsert, calendar beacon, edit-link resend. All
-// Airtable access lives here (server-side, AIRTABLE_API_KEY); the page and
-// the client form only ever see the whitelisted shapes returned below.
+// Demo Day RSVP: upsert, calendar beacon, edit-link resend. All Airtable
+// writes from the page go through here (server-side, AIRTABLE_API_KEY). There
+// is no GET: guest data (names, personal notes) is never readable over HTTP.
 
 const { email: EMAIL, inviteCode: CODE, token: TOKEN } = PATTERNS;
 const CAL_VIA = new Set(["gcal", "ics"]);
 
 const s = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-
-function invitee(g: { name: string; email: string; org: string; note: string }) {
-  // Never the token.
-  return { name: g.name, email: g.email, org: g.org, note: g.note };
-}
-
-export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams;
-  const lookup = q.get("lookup");
-  const token = q.get("token");
-
-  try {
-    if (lookup != null) {
-      const guest = lookup.startsWith("code:")
-        ? CODE.test(lookup.slice(5))
-          ? await findGuestBy("inviteCode", lookup.slice(5))
-          : null
-        : EMAIL.test(lookup.trim())
-          ? await findGuestBy("email", lookup)
-          : null;
-      // 404 is the ordinary "not on the list" outcome, not an error.
-      if (!guest) return Response.json({ error: "not found" }, { status: 404 });
-      return Response.json(invitee(guest));
-    }
-
-    if (token != null) {
-      const guest = TOKEN.test(token) ? await findGuestBy("token", token) : null;
-      if (!guest) return Response.json({ error: "not found" }, { status: 404 });
-      const { name, email, org, note, rsvp, diet, anything } = guest;
-      return Response.json({ name, email, org, note, rsvp, diet, anything, token: guest.token });
-    }
-
-    return Response.json({ error: "lookup or token required" }, { status: 400 });
-  } catch (e) {
-    console.error("[rsvp GET]", e);
-    return Response.json({ error: "lookup failed" }, { status: 500 });
-  }
-}
 
 export async function POST(req: NextRequest) {
   const action = req.nextUrl.searchParams.get("action");
