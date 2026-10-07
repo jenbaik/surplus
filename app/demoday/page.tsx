@@ -228,30 +228,67 @@ function CellView({ c, className = "" }: { c: Cell; className?: string }) {
   );
 }
 
-function ProjectCard({ p, i }: { p: Project; i: number }) {
+// One card per cell, so founders who wrote separately get their own card;
+// `joinNext` puts a "+" on the edge shared with their teammate's card.
+type Card = { cell: Cell; n: number; joinNext: boolean; span: string };
+
+// Literal classes so Tailwind can see them.
+const COL_SPAN: Record<number, string> = {
+  2: "col-span-2",
+  3: "col-span-3",
+  4: "col-span-4",
+  5: "col-span-5",
+  6: "col-span-6",
+  7: "col-span-7",
+  8: "col-span-8",
+  9: "col-span-9",
+  10: "col-span-10",
+  12: "col-span-12",
+};
+
+// Roughly how much room a card's copy needs (list items cost a line each).
+const weight = (c: Cell) => bioLength(c.blocks) + c.blocks.reduce((n, b) => n + (b.items?.length ?? 0) * 40, 0);
+
+// Rows of two on a 12-column grid, each card as wide as its copy needs
+// (4 to 8 columns), so rows come out about the same height. The last row
+// also holds the "Meet the founders" tab (2 columns).
+function layoutCards(projects: Project[]): Card[] {
+  const cards = projects.flatMap((p, pi) =>
+    p.cells.map((cell, ci) => ({ cell, n: pi + 1, joinNext: ci < p.cells.length - 1 }))
+  );
+  const out: Card[] = [];
+  for (let k = 0; k < cards.length; k += 2) {
+    const row = cards.slice(k, k + 2);
+    const last = k + 2 >= cards.length;
+    const cols = last ? 10 : 12;
+    if (row.length === 1) {
+      out.push({ ...row[0], span: COL_SPAN[cols] });
+      continue;
+    }
+    const [wa, wb] = row.map((c) => weight(c.cell));
+    const a = Math.min(Math.max(Math.round((cols * wa) / (wa + wb)), 4), cols - 4);
+    out.push({ ...row[0], span: COL_SPAN[a] }, { ...row[1], span: COL_SPAN[cols - a] });
+  }
+  return out;
+}
+
+function FounderCard({ card }: { card: Card }) {
   return (
-    <article className="flex flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper">
+    <article
+      className={`relative flex flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper ${card.span} max-bp:col-span-full`}
+    >
       <div className="px-4 pt-3 font-mono text-[11px] uppercase tracking-widest text-ink-pink">
-        No. {String(i + 1).padStart(2, "0")}
+        No. {String(card.n).padStart(2, "0")}
       </div>
-      <div className="flex flex-1 items-stretch max-sm:flex-col">
-        {p.cells.map((c, ci) => (
-          <div key={c.names.join("+")} className="flex flex-1 items-stretch max-sm:flex-col">
-            {ci > 0 && (
-              <div className="relative flex items-center justify-center px-0.5 max-sm:py-1">
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-y-4 left-1/2 border-l-[1.5px] border-dotted border-ink-dark/40 max-sm:inset-x-4 max-sm:inset-y-auto max-sm:left-4 max-sm:top-1/2 max-sm:border-l-0 max-sm:border-t-[1.5px]"
-                ></span>
-                <span className="relative select-none bg-paper py-1 font-display text-2xl leading-none text-ink-blue">
-                  +
-                </span>
-              </div>
-            )}
-            <CellView c={c} className="flex-1" />
-          </div>
-        ))}
-      </div>
+      <CellView c={card.cell} className="flex-1" />
+      {card.joinNext && (
+        <span
+          aria-hidden="true"
+          className="absolute -right-[1.5px] top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 translate-x-1/2 place-items-center rounded-full border-[3px] border-ink-dark bg-paper font-display text-xl leading-none text-ink-blue max-bp:-bottom-[1.5px] max-bp:right-1/2 max-bp:top-auto max-bp:translate-y-1/2"
+        >
+          +
+        </span>
+      )}
     </article>
   );
 }
@@ -273,7 +310,7 @@ export default async function DemoDayPage({
   return (
     <>
       {/* =================== HERO =================== */}
-      <section className="relative overflow-x-clip pb-10 pt-9 max-bp:pb-8">
+      <section className="relative overflow-x-clip pb-4 pt-9 max-bp:pb-3">
         <div className="relative mx-auto max-w-[1320px] px-14 max-bp:px-5">
           <div
             className="pointer-events-none absolute right-[-160px] top-[110px] z-0 h-80 w-80 opacity-85 max-bp:hidden"
@@ -367,7 +404,7 @@ export default async function DemoDayPage({
       </section>
 
       {/* =================== THE EVENING =================== */}
-      <section className="pb-4 pt-8 max-bp:pt-6">
+      <section className="pb-4 pt-6 max-bp:pt-5">
         <div className="mx-auto max-w-[1320px] px-14 max-bp:px-5">
           <SectionHead n="01">The Evening</SectionHead>
           <ol className="m-0 mt-1 list-none columns-2 gap-12 p-0 max-sm:columns-1">
@@ -412,20 +449,18 @@ export default async function DemoDayPage({
             </Link>
           </p>
           {projects.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 border-l-[3px] border-t-[3px] border-ink-dark max-sm:grid-cols-1">
-              {projects.map((p, idx) => (
-                <ProjectCard key={p.founders[0].name} p={p} i={idx} />
+            <div className="mt-4 grid grid-cols-12 border-l-[3px] border-t-[3px] border-ink-dark max-bp:grid-cols-1">
+              {layoutCards(projects).map((card) => (
+                <FounderCard key={card.cell.names.join("+")} card={card} />
               ))}
               <Link
                 href="/founders"
-                className={`group flex min-h-[160px] flex-col justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-6 py-6 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow motion-safe:transition-colors ${
-                  projects.length % 2 === 0 ? "col-span-2 max-sm:col-span-1" : ""
-                }`}
+                className="group col-span-2 flex min-h-[140px] flex-col justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-4 py-5 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow max-bp:col-span-full motion-safe:transition-colors"
               >
-                <span className="font-mono text-sm uppercase tracking-widest opacity-70">
+                <span className="font-mono text-[11px] uppercase tracking-widest opacity-70">
                   Full profiles
                 </span>
-                <span className="font-condensed text-3xl font-bold uppercase leading-none tracking-wide">
+                <span className="font-condensed text-2xl font-bold uppercase leading-none tracking-wide">
                   Meet the founders <span className="font-display text-ink-yellow">☞</span>
                 </span>
               </Link>
