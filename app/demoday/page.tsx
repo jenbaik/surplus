@@ -158,11 +158,11 @@ function BlockCopy({ b }: { b: Block }) {
 }
 
 // Bios this short show in full; longer ones get the expandable preview.
-const SHORT_BIO = 260;
+const SHORT_BIO = 600;
 const bioLength = (blocks: Block[]) =>
   blocks.reduce((n, b) => n + b.text.length + (b.items ?? []).join(" ").length, 0);
 
-// The /founders "Full idea" block: a 4-line preview that expands in place.
+// The /founders "Full idea" block: a 6-line preview that expands in place.
 function Bio({ blocks }: { blocks: Block[] }) {
   return (
     <details className="group mt-2.5 border-t-[1.5px] border-dotted border-ink-dark/40 pt-1.5">
@@ -176,7 +176,7 @@ function Bio({ blocks }: { blocks: Block[] }) {
           </span>
           Full bio
         </span>
-        <span className="mt-1 line-clamp-4 font-serif text-sm leading-snug group-open:hidden">
+        <span className="mt-1 line-clamp-6 font-serif text-sm leading-snug group-open:hidden">
           <Rich text={blocks[0]?.text ?? ""} />
         </span>
       </summary>
@@ -229,17 +229,12 @@ function CellView({ c, className = "" }: { c: Cell; className?: string }) {
 }
 
 function ProjectCard({ p, i }: { p: Project; i: number }) {
-  const team = p.founders.length > 1;
   return (
-    <article
-      className={`border-b-[3px] border-r-[3px] border-ink-dark bg-paper ${
-        team ? "col-span-2 max-sm:col-span-full" : ""
-      }`}
-    >
+    <article className="flex flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper">
       <div className="px-4 pt-3 font-mono text-[11px] uppercase tracking-widest text-ink-pink">
         No. {String(i + 1).padStart(2, "0")}
       </div>
-      <div className="flex items-stretch max-sm:flex-col">
+      <div className="flex flex-1 items-stretch max-sm:flex-col">
         {p.cells.map((c, ci) => (
           <div key={c.names.join("+")} className="flex flex-1 items-stretch max-sm:flex-col">
             {ci > 0 && (
@@ -274,9 +269,6 @@ export default async function DemoDayPage({
   const founderCount = projects.reduce((n, p) => n + p.founders.length, 0);
   const shownProjects = projects.length || FALLBACK_COUNTS.projects;
   const shownFounders = projects.length ? founderCount : FALLBACK_COUNTS.founders;
-  // Team cards span 2 of the 4 desktop columns; square off the last row.
-  const units = projects.reduce((n, p) => n + (p.founders.length > 1 ? 2 : 1), 0);
-  const fillerCols = (4 - (units % 4)) % 4;
 
   return (
     <>
@@ -374,12 +366,6 @@ export default async function DemoDayPage({
         </div>
       </section>
 
-      {/* =================== BANNER =================== */}
-      <div className="bg-ink-dark px-10 py-2.5 text-center font-condensed text-lg font-bold uppercase tracking-wider text-paper max-bp:px-5 max-bp:text-sm">
-        ✦&nbsp;&nbsp;Pitches · Dinner · Happy hour ·{" "}
-        <em className="not-italic text-ink-yellow">The first Surplus cohort</em>&nbsp;&nbsp;✦
-      </div>
-
       {/* =================== THE EVENING =================== */}
       <section className="pb-4 pt-8 max-bp:pt-6">
         <div className="mx-auto max-w-[1320px] px-14 max-bp:px-5">
@@ -426,17 +412,23 @@ export default async function DemoDayPage({
             </Link>
           </p>
           {projects.length > 0 && (
-            <div className="mt-4 grid grid-cols-4 border-l-[3px] border-t-[3px] border-ink-dark max-bp:grid-cols-2 max-sm:grid-cols-1">
+            <div className="mt-4 grid grid-cols-2 border-l-[3px] border-t-[3px] border-ink-dark max-sm:grid-cols-1">
               {projects.map((p, idx) => (
                 <ProjectCard key={p.founders[0].name} p={p} i={idx} />
               ))}
-              {fillerCols > 0 && (
-                <div
-                  aria-hidden="true"
-                  className="border-b-[3px] border-r-[3px] border-ink-dark bg-paper-deep max-bp:hidden"
-                  style={{ gridColumn: `span ${fillerCols} / span ${fillerCols}` }}
-                ></div>
-              )}
+              <Link
+                href="/founders"
+                className={`group flex min-h-[160px] flex-col justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-6 py-6 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow motion-safe:transition-colors ${
+                  projects.length % 2 === 0 ? "col-span-2 max-sm:col-span-1" : ""
+                }`}
+              >
+                <span className="font-mono text-sm uppercase tracking-widest opacity-70">
+                  Full profiles
+                </span>
+                <span className="font-condensed text-3xl font-bold uppercase leading-none tracking-wide">
+                  Meet the founders <span className="font-display text-ink-yellow">☞</span>
+                </span>
+              </Link>
             </div>
           )}
         </div>

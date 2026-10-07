@@ -18,11 +18,11 @@ const NOT_PRESENTING = new Set([
 const RUNNING_ORDER = [
   "Hudson Mitchell-Pullman",
   "Joey Bream",
-  "Francisco Carvalho (xiq)",
   "Haoxing Du",
-  "Derik Kauffman",
-  "Vaishnav Sunil",
+  "Francisco Carvalho (xiq)",
   "Beat Hagenlocher",
+  "Vaishnav Sunil",
+  "Derik Kauffman",
 ];
 
 function slot(p: Project): number {
