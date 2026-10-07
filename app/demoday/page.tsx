@@ -498,17 +498,6 @@ export default async function DemoDayPage({
               {projects.map((p, idx) => (
                 <ProjectCard key={p.founders[0].name} p={p} i={idx} span={spans[idx]} />
               ))}
-              <Link
-                href="/founders"
-                className="group col-span-12 flex items-center justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-5 py-3 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow motion-safe:transition-colors max-sm:flex-col max-sm:items-start max-sm:gap-1"
-              >
-                <span className="font-mono text-[11px] uppercase tracking-widest opacity-70">
-                  Full profiles
-                </span>
-                <span className="font-condensed text-2xl font-bold uppercase leading-none tracking-wide">
-                  Meet the founders <span className="font-display text-ink-yellow">☞</span>
-                </span>
-              </Link>
             </div>
           )}
         </div>
