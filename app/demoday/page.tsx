@@ -27,9 +27,8 @@ export const metadata: Metadata = {
 
 const SCHEDULE: { time: string; item: string; note?: string; key?: boolean }[] = [
   { time: "6:00", item: "Doors open" },
-  { time: "6:30", item: "Introduction by Austin", note: "5 min" },
-  { time: "6:35", item: "Pitch Block 1", key: true },
-  { time: "7:10", item: "Pitch Block 2", key: true },
+  { time: "6:30", item: "Introduction by Austin" },
+  { time: "6:35", item: "Founder Pitches", key: true },
   { time: "7:30", item: "Dinner & Mingling" },
 ];
 
@@ -113,7 +112,7 @@ function SectionHead({ n, children }: { n: string; children: React.ReactNode }) 
   );
 }
 
-function Stat({ n, label, detail }: { n: string; label: string; detail: string }) {
+function Stat({ n, label, detail }: { n: string; label: string; detail?: string }) {
   return (
     <div className="grid grid-cols-[auto_1fr] items-center gap-3.5 border-[3px] border-ink-dark bg-paper px-3.5 py-3">
       <span className="min-w-[2ch] font-display text-[34px] leading-none text-ink-pink">{n}</span>
@@ -121,9 +120,11 @@ function Stat({ n, label, detail }: { n: string; label: string; detail: string }
         <span className="font-condensed text-[13px] font-bold uppercase leading-[1.15] tracking-wide">
           {label}
         </span>
-        <span className="font-mono text-[12px] uppercase leading-[1.15] tracking-widest text-ink-blue">
-          {detail}
-        </span>
+        {detail && (
+          <span className="font-mono text-[12px] uppercase leading-[1.15] tracking-widest text-ink-blue">
+            {detail}
+          </span>
+        )}
       </span>
     </div>
   );
@@ -428,7 +429,7 @@ export default async function DemoDayPage({
 
           <div className="relative z-[1] mt-7 grid grid-cols-3 gap-4 max-bp:gap-3 max-sm:grid-cols-1">
             <Stat n={String(shownProjects)} label="Projects presenting" detail={`${shownFounders} founders`} />
-            <Stat n="8" label="Minutes per pitch" detail="Two pitch blocks" />
+            <Stat n="8" label="Minutes per pitch" />
             <Stat n="~40" label="Guests" detail="Invite only" />
           </div>
 
