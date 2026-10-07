@@ -30,8 +30,7 @@ const SCHEDULE: { time: string; item: string; note?: string; key?: boolean }[] =
   { time: "6:30", item: "Introduction by Austin", note: "5 min" },
   { time: "6:35", item: "Pitch Block 1", key: true },
   { time: "7:10", item: "Pitch Block 2", key: true },
-  { time: "7:30", item: "Dinner" },
-  { time: "8:30", item: "Continued mingling & happy hour" },
+  { time: "7:30", item: "Dinner & Mingling" },
 ];
 
 // ?r=<token> prefills everything (it's their magic link); ?i=<code> only
@@ -399,7 +398,7 @@ export default async function DemoDayPage({
 
           <div className="mt-1 flex items-baseline justify-between border-t-[3px] border-ink-dark pt-2.5 font-mono text-sm uppercase tracking-widest max-bp:flex-col max-bp:items-start max-bp:gap-1.5">
             <span>☞&nbsp;&nbsp;Organized by Manifund &amp; Mox</span>
-            <span className="max-bp:hidden">Friday, October 23 · 6 to 11pm</span>
+            <span className="max-bp:hidden">Friday, October 23 · 6pm</span>
             <span className="max-bp:hidden">San Francisco</span>
             <span className="max-bp:hidden"></span>
             <span className="max-bp:hidden"></span>

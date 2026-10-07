@@ -7,7 +7,7 @@ export const EVENT = {
   title: "Surplus Demo Day",
   location: "Mox SF, 4th floor, 1680 Mission St, San Francisco, CA 94103",
   description:
-    "The first Surplus cohort presents. Doors 6:00pm, pitches from 6:35pm, dinner 7:30pm, happy hour from 8:30pm.",
+    "The first Surplus cohort presents. Doors 6:00pm, pitches from 6:35pm, dinner & mingling from 7:30pm.",
   url: "https://surplus.dev/demoday",
   // Fri 23 Oct 2026, 6:00pm–11:00pm PT (PDT, UTC-7)
   startUtc: "20261024T010000Z",
