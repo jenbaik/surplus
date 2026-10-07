@@ -30,9 +30,8 @@ const SCHEDULE: { time: string; item: string; note?: string; key?: boolean }[] =
   { time: "6:30", item: "Introduction by Austin", note: "5 min" },
   { time: "6:35", item: "Pitch Block 1", key: true },
   { time: "7:10", item: "Pitch Block 2", key: true },
-  { time: "7:35", item: "Close" },
-  { time: "7:45", item: "Dinner" },
-  { time: "8:45", item: "Continued mingling & happy hour" },
+  { time: "7:30", item: "Dinner" },
+  { time: "8:30", item: "Continued mingling & happy hour" },
 ];
 
 // ?r=<token> prefills everything (it's their magic link); ?i=<code> only
