@@ -167,8 +167,7 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
           </>
         ) : (
           <p className="mt-3 max-w-[52ch] font-serif text-lg leading-snug">
-            Noted, and thanks for telling us \u2014 it genuinely helps the headcount. We\u2019ll send
-            you what the cohort built afterwards.
+            Thanks for letting us know. We\u2019ll send you what the cohort built afterwards.
           </p>
         )}
       </div>
