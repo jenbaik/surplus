@@ -22,9 +22,9 @@ function lit(s: string): string {
   return `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
-type LookupKey = "email" | "inviteCode" | "token";
+type LookupKey = "email" | "token";
 
-// Finds one guest by email (case-insensitive), invite code, or token.
+// Finds one guest by email (case-insensitive) or token.
 export async function findGuestBy(key: LookupKey, value: string): Promise<Guest | null> {
   const v = value.trim();
   if (!v) return null;
@@ -69,7 +69,6 @@ export type RsvpInput = {
   email: string;
   diet: string;
   anything: string;
-  inviteCode: string;
   token: string;
 };
 
@@ -103,6 +102,5 @@ export async function saveRsvp(input: RsvpInput): Promise<{ guest: Guest; create
 
   fields[G.token] = newToken();
   fields[G.submittedAt] = now;
-  if (input.inviteCode) fields[G.inviteCode] = input.inviteCode;
   return { guest: await createGuest(fields), created: true };
 }

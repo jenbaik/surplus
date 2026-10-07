@@ -44,7 +44,7 @@ async function resend(payload: Record<string, unknown>): Promise<string> {
 
 const WHEN = "Friday, October 23, 2026";
 const WHERE = "Mox SF, 4th floor, 1680 Mission St, San Francisco";
-const TIMINGS = "Doors 6:00pm · Pitches from 6:35pm · Dinner & mingling from 7:30pm";
+const TIMINGS = "Doors open 6:00pm · Introduction by Austin 6:30pm · Founder pitches 6:35pm · Dinner & mingling 7:30pm";
 
 // Sent once, on the first "Yes". Carries the METHOD:REQUEST invitation so
 // mail clients treat it as a calendar invite rather than a file.

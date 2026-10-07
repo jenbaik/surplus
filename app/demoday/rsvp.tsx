@@ -8,8 +8,8 @@ import { CONTACT_EMAIL, ICS_PATH, googleCalendarUrl } from "@/lib/demoday/calend
 import { PATTERNS, RSVPS, firstName, type Rsvp as Answer } from "@/lib/demoday/fields";
 import { BUTTON, BUTTON_SECONDARY, INPUT, LABEL } from "./styles";
 
-// Resolved server-side from ?r=<token> (the edit link in the confirmation
-// email: all answers) or ?i=<code> (name and email only, never the token).
+// Resolved server-side from ?r=<token>, the edit link in the confirmation
+// email: their saved answers.
 export type Prefill = {
   name: string;
   email: string;
@@ -21,7 +21,7 @@ export type Prefill = {
 
 type Done = { rsvp: Answer; first: string; token: string };
 
-export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteCode: string }) {
+export function Rsvp({ prefill }: { prefill: Prefill | null }) {
   const [email, setEmail] = useState(prefill?.email ?? "");
   const [name, setName] = useState(prefill?.name ?? "");
   const [rsvp, setRsvp] = useState<Answer>(prefill?.rsvp || "Yes");
@@ -59,7 +59,6 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
           email: email.trim(),
           diet: diet.trim(),
           anything: anything.trim(),
-          inviteCode,
           token: token.current,
           submittedAt: new Date().toISOString(),
         }),
@@ -122,7 +121,7 @@ export function Rsvp({ prefill, inviteCode }: { prefill: Prefill | null; inviteC
                 Apple Calendar / Outlook (.ics)
               </a>
             </div>
-            {yes && (
+            {(yes || maybe) && (
               <p className="mt-3 font-mono text-xs uppercase tracking-widest text-ink-dark/70">
                 A confirmation with these links is on its way to your inbox.
               </p>

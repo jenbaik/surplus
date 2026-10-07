@@ -7,7 +7,7 @@ import { G, PATTERNS, RSVPS, type Rsvp } from "@/lib/demoday/fields";
 // writes from the page go through here (server-side, AIRTABLE_API_KEY). There
 // is no GET: guest data (names, personal notes) is never readable over HTTP.
 
-const { email: EMAIL, inviteCode: CODE, token: TOKEN } = PATTERNS;
+const { email: EMAIL, token: TOKEN } = PATTERNS;
 const CAL_VIA = new Set(["gcal", "ics"]);
 
 const s = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -58,7 +58,6 @@ export async function POST(req: NextRequest) {
   if (!rsvp) return Response.json({ error: "rsvp must be Yes, Maybe or No" }, { status: 400 });
   if (!name) return Response.json({ error: "name required" }, { status: 400 });
   if (!EMAIL.test(email)) return Response.json({ error: "valid email required" }, { status: 400 });
-  const inviteCode = s(body.inviteCode, 64);
   const token = s(body.token, 64);
 
   try {
@@ -69,7 +68,6 @@ export async function POST(req: NextRequest) {
       // A "No" carries no logistics.
       diet: rsvp === "No" ? "" : s(body.diet, 500),
       anything: rsvp === "No" ? "" : s(body.anything, 2000),
-      inviteCode: CODE.test(inviteCode) ? inviteCode : "",
       token: TOKEN.test(token) ? token : "",
     });
 

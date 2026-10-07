@@ -32,22 +32,15 @@ const SCHEDULE: { time: string; item: string; note?: string; key?: boolean }[] =
   { time: "7:30", item: "Dinner & Mingling" },
 ];
 
-// ?r=<token> prefills everything (it's their magic link); ?i=<code> only
-// name / email. A failed lookup is silent — the page renders
-// regardless, with an empty form.
-async function resolvePrefill(code?: string, token?: string): Promise<Prefill | null> {
+// ?r=<token> (the edit link in the confirmation email) prefills their saved
+// answers. A failed lookup is silent: the page renders with an empty form.
+async function resolvePrefill(token?: string): Promise<Prefill | null> {
   try {
     if (token && PATTERNS.token.test(token)) {
       const g = await findGuestBy("token", token);
       if (g) {
         const { name, email, rsvp, diet, anything } = g;
         return { name, email, rsvp, diet, anything, token: g.token };
-      }
-    }
-    if (code && PATTERNS.inviteCode.test(code)) {
-      const g = await findGuestBy("inviteCode", code);
-      if (g) {
-        return { name: g.name, email: g.email, rsvp: "", diet: "", anything: "", token: "" };
       }
     }
   } catch (e) {
@@ -310,11 +303,10 @@ function layoutSpans(projects: Project[]): string[] {
 export default async function DemoDayPage({
   searchParams,
 }: {
-  searchParams: Promise<{ i?: string; r?: string }>;
+  searchParams: Promise<{ r?: string }>;
 }) {
-  const { i, r } = await searchParams;
-  const [projects, prefill] = await Promise.all([resolveCohort(), resolvePrefill(i, r)]);
-  const inviteCode = i && PATTERNS.inviteCode.test(i) ? i : "";
+  const { r } = await searchParams;
+  const [projects, prefill] = await Promise.all([resolveCohort(), resolvePrefill(r)]);
   const founderCount = projects.reduce((n, p) => n + p.founders.length, 0);
   const shownProjects = projects.length || FALLBACK_COUNTS.projects;
   const shownFounders = projects.length ? founderCount : FALLBACK_COUNTS.founders;
@@ -475,7 +467,7 @@ export default async function DemoDayPage({
             RSVP <span className="text-ink-pink">here</span>
           </SectionHead>
           <div className="mt-4 max-w-[640px]">
-            <Rsvp prefill={prefill} inviteCode={inviteCode} />
+            <Rsvp prefill={prefill} />
             <p className="mt-4 border-t-[1.5px] border-dotted border-ink-dark/40 pt-3 font-serif text-base">
               Questions, or need to cancel? Email{" "}
               <a
