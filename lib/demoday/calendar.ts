@@ -5,13 +5,13 @@
 
 export const EVENT = {
   title: "Surplus Demo Day",
-  location: "Mox SF, 1680 Mission St, San Francisco, CA 94103",
+  location: "Mox SF, 4th floor, 1680 Mission St, San Francisco, CA 94103",
   description:
-    "The first Surplus cohort presents. Doors 4:00pm, pitches 4:40–5:50pm, dinner 6:00pm, happy hour from 7:00pm.",
+    "The first Surplus cohort presents. Doors 6:00pm, pitches 6:35–7:35pm, dinner 7:45pm, happy hour from 8:45pm.",
   url: "https://surplus.dev/demoday",
-  // Fri 23 Oct 2026, 4:00pm–9:00pm PT (PDT, UTC-7)
-  startUtc: "20261023T230000Z",
-  endUtc: "20261024T040000Z",
+  // Fri 23 Oct 2026, 6:00pm–11:00pm PT (PDT, UTC-7)
+  startUtc: "20261024T010000Z",
+  endUtc: "20261024T060000Z",
   uid: "surplus-demo-day-2026@surplus.dev",
 } as const;
 

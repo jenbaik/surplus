@@ -26,14 +26,13 @@ export const metadata: Metadata = {
 };
 
 const SCHEDULE: { time: string; item: string; note?: string; key?: boolean }[] = [
-  { time: "4:00", item: "Doors open" },
-  { time: "4:30", item: "Introduction by Austin" },
-  { time: "4:40", item: "Pitch Block 1", key: true },
-  { time: "5:15", item: "Break", note: "15 min" },
-  { time: "5:30", item: "Pitch Block 2", key: true },
-  { time: "5:55", item: "Close" },
-  { time: "6:00", item: "Dinner" },
-  { time: "7:00", item: "Continued mingling & happy hour" },
+  { time: "6:00", item: "Doors open" },
+  { time: "6:30", item: "Introduction by Austin", note: "5 min" },
+  { time: "6:35", item: "Pitch Block 1", key: true },
+  { time: "7:10", item: "Pitch Block 2", key: true },
+  { time: "7:35", item: "Close" },
+  { time: "7:45", item: "Dinner" },
+  { time: "8:45", item: "Continued mingling & happy hour" },
 ];
 
 // ?r=<token> prefills everything (it's their magic link); ?i=<code> only
@@ -401,7 +400,7 @@ export default async function DemoDayPage({
 
           <div className="mt-1 flex items-baseline justify-between border-t-[3px] border-ink-dark pt-2.5 font-mono text-sm uppercase tracking-widest max-bp:flex-col max-bp:items-start max-bp:gap-1.5">
             <span>☞&nbsp;&nbsp;Organized by Manifund &amp; Mox</span>
-            <span className="max-bp:hidden">Friday, October 23 · 4 to 9pm</span>
+            <span className="max-bp:hidden">Friday, October 23 · 6 to 11pm</span>
             <span className="max-bp:hidden">San Francisco</span>
             <span className="max-bp:hidden"></span>
             <span className="max-bp:hidden"></span>
@@ -417,7 +416,7 @@ export default async function DemoDayPage({
             <span className="font-condensed text-[clamp(22px,2.6vw,34px)] font-bold uppercase leading-tight tracking-wide">
               <span className="whitespace-nowrap text-ink-pink">Friday, Oct 23</span>
               <span className="px-2 text-ink-blue">·</span>
-              <span className="whitespace-nowrap">Doors 4PM</span>
+              <span className="whitespace-nowrap">Doors 6PM</span>
               <span className="px-2 text-ink-blue">·</span>
               <span className="whitespace-nowrap">Mox SF</span>
             </span>
@@ -436,7 +435,7 @@ export default async function DemoDayPage({
           </div>
 
           <div className="relative z-[1] mt-5 grid grid-cols-3 gap-x-8 gap-y-3 border-t-[1.5px] border-dotted border-ink-dark/40 pt-3 font-mono text-xs uppercase leading-normal tracking-widest max-sm:grid-cols-1">
-            <Detail label="Where">Mox SF, 1680 Mission St, San Francisco.</Detail>
+            <Detail label="Where">Mox SF, 4th floor, 1680 Mission St, San Francisco.</Detail>
             <Detail label="Getting there">Nearest BART is 16th St Mission.</Detail>
             <Detail label="Parking">
               <a
