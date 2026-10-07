@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Fragment } from "react";
 import { findGuestBy } from "@/lib/demoday/airtable";
 import { CONTACT_EMAIL, PARKING } from "@/lib/demoday/calendar";
 import { PATTERNS } from "@/lib/demoday/fields";
@@ -158,7 +159,7 @@ function BlockCopy({ b }: { b: Block }) {
 }
 
 // Bios this short show in full; longer ones get the expandable preview.
-const SHORT_BIO = 600;
+const SHORT_BIO = 260;
 const bioLength = (blocks: Block[]) =>
   blocks.reduce((n, b) => n + b.text.length + (b.items ?? []).join(" ").length, 0);
 
@@ -189,17 +190,9 @@ function Bio({ blocks }: { blocks: Block[] }) {
   );
 }
 
-function CellView({ c, className = "" }: { c: Cell; className?: string }) {
+function CopyBody({ c }: { c: Cell }) {
   return (
-    <div className={`flex min-w-0 flex-col px-4 pb-4 pt-3.5 ${className}`}>
-      <h3 className="m-0 text-balance font-condensed text-[22px] font-bold uppercase leading-[0.95] tracking-wide">
-        {c.names.map((name, i) => (
-          <span key={name}>
-            {i > 0 && <span className="px-1 font-display text-lg text-ink-blue">+</span>}
-            {name}
-          </span>
-        ))}
-      </h3>
+    <>
       {c.tagline && (
         <p className="m-0 mt-2 text-pretty font-serif text-[15px] italic leading-snug text-ink-dark">
           <Rich text={c.tagline} />
@@ -224,74 +217,99 @@ function CellView({ c, className = "" }: { c: Cell; className?: string }) {
         ) : (
           <Bio blocks={c.blocks} />
         ))}
+    </>
+  );
+}
+
+// Name + personal site, as on /founders.
+function PersonHead({ f }: { f: { name: string; about: string } }) {
+  return (
+    <>
+      <h3 className="m-0 text-balance font-condensed text-[22px] font-bold uppercase leading-[0.95] tracking-wide">
+        {f.name}
+      </h3>
+      {f.about && (
+        <a
+          href={f.about}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`mt-1.5 self-start ${MONO_LINK}`}
+        >
+          ☞ {prettyUrl(f.about)}
+        </a>
+      )}
+    </>
+  );
+}
+
+// The dotted rule + "+" between teammates, from /founders.
+function Plus() {
+  return (
+    <div className="relative flex items-center justify-center px-0.5 max-sm:py-1">
+      <span
+        aria-hidden="true"
+        className="absolute inset-y-4 left-1/2 border-l-[1.5px] border-dotted border-ink-dark/40 max-sm:inset-x-4 max-sm:inset-y-auto max-sm:left-4 max-sm:top-1/2 max-sm:border-l-0 max-sm:border-t-[1.5px]"
+      ></span>
+      <span className="relative select-none bg-paper py-1 font-display text-2xl leading-none text-ink-blue">
+        +
+      </span>
     </div>
   );
 }
 
-// One card per cell, so founders who wrote separately get their own card;
-// `joinNext` puts a "+" on the edge shared with their teammate's card.
-type Card = { cell: Cell; n: number; joinNext: boolean; span: string };
-
-// Literal classes so Tailwind can see them.
-const COL_SPAN: Record<number, string> = {
-  2: "col-span-2",
-  3: "col-span-3",
-  4: "col-span-4",
-  5: "col-span-5",
-  6: "col-span-6",
-  7: "col-span-7",
-  8: "col-span-8",
-  9: "col-span-9",
-  10: "col-span-10",
-  12: "col-span-12",
-};
-
-// Roughly how much room a card's copy needs (list items cost a line each).
-const weight = (c: Cell) => bioLength(c.blocks) + c.blocks.reduce((n, b) => n + (b.items?.length ?? 0) * 40, 0);
-
-// Rows of two on a 12-column grid, each card as wide as its copy needs
-// (4 to 8 columns), so rows come out about the same height. The last row
-// also holds the "Meet the founders" tab (2 columns).
-function layoutCards(projects: Project[]): Card[] {
-  const cards = projects.flatMap((p, pi) =>
-    p.cells.map((cell, ci) => ({ cell, n: pi + 1, joinNext: ci < p.cells.length - 1 }))
-  );
-  const out: Card[] = [];
-  for (let k = 0; k < cards.length; k += 2) {
-    const row = cards.slice(k, k + 2);
-    const last = k + 2 >= cards.length;
-    const cols = last ? 10 : 12;
-    if (row.length === 1) {
-      out.push({ ...row[0], span: COL_SPAN[cols] });
-      continue;
-    }
-    const [wa, wb] = row.map((c) => weight(c.cell));
-    const a = Math.min(Math.max(Math.round((cols * wa) / (wa + wb)), 4), cols - 4);
-    out.push({ ...row[0], span: COL_SPAN[a] }, { ...row[1], span: COL_SPAN[cols - a] });
-  }
-  return out;
-}
-
-function FounderCard({ card }: { card: Card }) {
+function ProjectCard({ p, i }: { p: Project; i: number }) {
+  const team = p.founders.length > 1;
+  const shared = team && p.cells.length === 1;
   return (
     <article
-      className={`relative flex flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper ${card.span} max-bp:col-span-full`}
+      className={`flex flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper ${
+        team ? "col-span-2 max-sm:col-span-full" : ""
+      }`}
     >
       <div className="px-4 pt-3 font-mono text-[11px] uppercase tracking-widest text-ink-pink">
-        No. {String(card.n).padStart(2, "0")}
+        No. {String(i + 1).padStart(2, "0")}
       </div>
-      <CellView c={card.cell} className="flex-1" />
-      {card.joinNext && (
-        <span
-          aria-hidden="true"
-          className="absolute -right-[1.5px] top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 translate-x-1/2 place-items-center rounded-full border-[3px] border-ink-dark bg-paper font-display text-xl leading-none text-ink-blue max-bp:-bottom-[1.5px] max-bp:right-1/2 max-bp:top-auto max-bp:translate-y-1/2"
-        >
-          +
-        </span>
+      {shared ? (
+        <>
+          {/* One shared section: names side by side, copy underneath. */}
+          <div className="flex items-stretch max-sm:flex-col">
+            {p.founders.map((f, fi) => (
+              <Fragment key={f.name}>
+                {fi > 0 && <Plus />}
+                <div className="flex min-w-0 flex-1 flex-col px-4 pt-2">
+                  <PersonHead f={f} />
+                </div>
+              </Fragment>
+            ))}
+          </div>
+          <div className="flex min-w-0 flex-col px-4 pb-4">
+            <CopyBody c={p.cells[0]} />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-1 items-stretch max-sm:flex-col">
+          {p.founders.map((f, fi) => (
+            <Fragment key={f.name}>
+              {fi > 0 && <Plus />}
+              <div className="flex min-w-0 flex-1 flex-col px-4 pb-4 pt-2">
+                <PersonHead f={f} />
+                {p.cells[fi] && <CopyBody c={p.cells[fi]} />}
+              </div>
+            </Fragment>
+          ))}
+        </div>
       )}
     </article>
   );
 }
+
+// Fills the rest of the last row (literal classes so Tailwind sees them).
+const FILL_SPAN: Record<number, string> = {
+  1: "col-span-1",
+  2: "col-span-2",
+  3: "col-span-3",
+  4: "col-span-4",
+};
 
 // -------------------- page --------------------
 
@@ -306,6 +324,9 @@ export default async function DemoDayPage({
   const founderCount = projects.reduce((n, p) => n + p.founders.length, 0);
   const shownProjects = projects.length || FALLBACK_COUNTS.projects;
   const shownFounders = projects.length ? founderCount : FALLBACK_COUNTS.founders;
+  // Teams take 2 of the 4 columns; "Meet the founders" fills the last row.
+  const units = projects.reduce((n, p) => n + (p.founders.length > 1 ? 2 : 1), 0);
+  const fillCols = (4 - (units % 4)) % 4 || 4;
 
   return (
     <>
@@ -407,12 +428,9 @@ export default async function DemoDayPage({
       <section className="pb-4 pt-6 max-bp:pt-5">
         <div className="mx-auto max-w-[1320px] px-14 max-bp:px-5">
           <SectionHead n="01">The Evening</SectionHead>
-          <ol className="m-0 mt-1 list-none columns-2 gap-12 p-0 max-sm:columns-1">
+          <ol className="m-0 mt-3 list-none p-0">
             {SCHEDULE.map((row) => (
-              <li
-                key={row.time}
-                className="grid break-inside-avoid grid-cols-[52px_1fr] items-baseline gap-3 border-b border-ink-dark/20 py-1.5"
-              >
+              <li key={row.time} className="grid grid-cols-[52px_1fr] items-baseline gap-3 py-0.5">
                 <span className="font-mono text-sm text-ink-blue">{row.time}</span>
                 <span className="flex flex-wrap items-baseline gap-x-2">
                   <span
@@ -449,18 +467,18 @@ export default async function DemoDayPage({
             </Link>
           </p>
           {projects.length > 0 && (
-            <div className="mt-4 grid grid-cols-12 border-l-[3px] border-t-[3px] border-ink-dark max-bp:grid-cols-1">
-              {layoutCards(projects).map((card) => (
-                <FounderCard key={card.cell.names.join("+")} card={card} />
+            <div className="mt-4 grid grid-cols-4 border-l-[3px] border-t-[3px] border-ink-dark max-bp:grid-cols-2 max-sm:grid-cols-1">
+              {projects.map((p, idx) => (
+                <ProjectCard key={p.founders[0].name} p={p} i={idx} />
               ))}
               <Link
                 href="/founders"
-                className="group col-span-2 flex min-h-[140px] flex-col justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-4 py-5 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow max-bp:col-span-full motion-safe:transition-colors"
+                className={`group flex min-h-[140px] flex-col justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-5 py-5 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow max-bp:col-span-full motion-safe:transition-colors ${FILL_SPAN[fillCols]}`}
               >
                 <span className="font-mono text-[11px] uppercase tracking-widest opacity-70">
                   Full profiles
                 </span>
-                <span className="font-condensed text-2xl font-bold uppercase leading-none tracking-wide">
+                <span className="font-condensed text-3xl font-bold uppercase leading-none tracking-wide">
                   Meet the founders <span className="font-display text-ink-yellow">☞</span>
                 </span>
               </Link>

@@ -104,8 +104,13 @@ function fallbackCell(people: PublicFounder[]): Cell {
 function toProject(team: PublicFounder[]): Project {
   const lead = team.find((f) => DESCRIPTION_LEAD.has(f.name));
   const ordered = lead ? [lead, ...team.filter((f) => f !== lead)] : team;
-  const founders = ordered.map((f) => ({ name: f.name, about: f.about }));
-  const names = ordered.map((f) => f.name);
+  // Names as the Notion doc writes them where it does (e.g. "Phil Palmer"
+  // for Airtable's "Dr. Phil Palmer"); `about` is their personal site, the
+  // same link /founders shows.
+  const docNames = ordered.flatMap((f) => DOC_COPY[f.name]?.names ?? []);
+  const display = (name: string) => docNames.find((n) => name.endsWith(n)) ?? name;
+  const founders = ordered.map((f) => ({ name: display(f.name), about: f.about }));
+  const names = founders.map((f) => f.name);
 
   const shared = ordered.map((f) => DOC_COPY[f.name]).find((d) => d?.shared);
   if (shared) {
@@ -122,7 +127,7 @@ function toProject(team: PublicFounder[]): Project {
         if (!d) return fallbackCell([f]);
         const { shared: _shared, ...copy } = d;
         void _shared;
-        return { ...copy, names: copy.names ?? [f.name] };
+        return { ...copy, names: copy.names ?? [display(f.name)] };
       }),
     };
   }
