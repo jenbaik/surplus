@@ -48,20 +48,32 @@ const PRIVATE_LINK = /docs\.google\.com|notion\.so/i;
 // a list under its lead-in, exactly as the founder wrote it.
 export type Block = { text: string; items?: string[] };
 
-export type Project = {
-  founders: { name: string; about: string }[];
+// One cell on the card. A team that wrote one shared description gets a
+// single cell naming everyone; a team that wrote separately gets one cell
+// per founder (the /founders layout).
+export type Cell = {
+  names: string[];
   tagline: string;
   blocks: Block[];
   links: string[];
 };
+
+export type Project = {
+  founders: { name: string; about: string }[];
+  cells: Cell[];
+};
+
+type DocEntry = { tagline: string; blocks: Block[]; links: string[]; shared?: boolean };
 
 // Founder-written copy from the Notion doc "What have founders been making
 // at Surplus?" (Surplus Home), read 2026-10-07. Rule: their sentences and
 // phrasing only, cut to condense, never reworded. Keyed by any one founder
 // on the team (Airtable "Name"). Teams not listed fall back to their
 // application text. `tagline` is the project name as the doc gives it.
-const DOC_COPY: Record<string, { tagline: string; blocks: Block[]; links: string[] }> = {
+// `shared: true` = the entry covers the whole team in one cell.
+const DOC_COPY: Record<string, DocEntry> = {
   "Hudson Mitchell-Pullman": {
+    shared: true,
     tagline: "Mathetic",
     blocks: [
       {
@@ -71,6 +83,7 @@ const DOC_COPY: Record<string, { tagline: string; blocks: Block[]; links: string
     links: ["https://www.loom.com/share/5fb1862c7b6d421f88e5bd536fab9267"],
   },
   "Joey Bream": {
+    shared: true,
     tagline: "safely.bio",
     blocks: [
       {
@@ -83,11 +96,8 @@ const DOC_COPY: Record<string, { tagline: string; blocks: Block[]; links: string
     links: ["https://safely.bio"],
   },
   "Francisco Carvalho (xiq)": {
-    tagline: "Cuties! · CA",
+    tagline: "CA",
     blocks: [
-      {
-        text: "Christine Shiba is a designer, community builder, and weaver of social infrastructure. She is working on Cuties!, a curated social app and vouch network that helps community-members find friends, opportunities, and people to date. Cuties! has over 2K users and has led to over 120 self-reported meet ups, including many friendships, collaborations, relationships, engagements and even 1 baby.",
-      },
       {
         text: "CA is an open social data project that",
         items: [
@@ -95,6 +105,15 @@ const DOC_COPY: Record<string, { tagline: string; blocks: Block[]; links: string
           "Lets people (and me) build tools for epistemics and cooperation and community",
           "Enables scientific research on how ideas spread",
         ],
+      },
+    ],
+    links: [],
+  },
+  "Christine Shiba": {
+    tagline: "Cuties!",
+    blocks: [
+      {
+        text: "Christine Shiba is a designer, community builder, and weaver of social infrastructure. She is working on Cuties!, a curated social app and vouch network that helps community-members find friends, opportunities, and people to date. Cuties! has over 2K users and has led to over 120 self-reported meet ups, including many friendships, collaborations, relationships, engagements and even 1 baby.",
       },
     ],
     links: ["https://cuties.app"],
@@ -160,24 +179,41 @@ export function leadSentences(text: string, maxSentences = 3, maxChars = 340): s
   return out || para.slice(0, maxChars);
 }
 
-function toProject(team: PublicFounder[]): Project {
-  const lead = team.find((f) => DESCRIPTION_LEAD.has(f.name));
-  const ordered = lead ? [lead, ...team.filter((f) => f !== lead)] : team;
-  const founders = ordered.map((f) => ({ name: f.name, about: f.about }));
-  const doc = team.map((f) => DOC_COPY[f.name]).find(Boolean);
-  if (doc) return { founders, ...doc };
-  const withCopy = ordered.find((f) => f.ideaLong) ?? ordered[0];
-  const withTagline = ordered.find((f) => f.ideaShort) ?? ordered[0];
-  const ideaLinks = [...new Set(ordered.flatMap((f) => f.ideaLinks))].filter(
+// Application-text fallback for anyone without doc copy.
+function fallbackCell(people: PublicFounder[]): Cell {
+  const withCopy = people.find((f) => f.ideaLong) ?? people[0];
+  const withTagline = people.find((f) => f.ideaShort) ?? people[0];
+  const ideaLinks = [...new Set(people.flatMap((f) => f.ideaLinks))].filter(
     (u) => !PRIVATE_LINK.test(u)
   );
-  const links = ideaLinks.length ? ideaLinks : ordered.map((f) => f.about).filter(Boolean);
+  const links = ideaLinks.length ? ideaLinks : people.map((f) => f.about).filter(Boolean);
   return {
-    founders,
+    names: people.map((f) => f.name),
     tagline: withTagline.ideaShort,
     blocks: [{ text: leadSentences(withCopy.ideaLong) }],
     links: [...new Set(links)],
   };
+}
+
+function toProject(team: PublicFounder[]): Project {
+  const lead = team.find((f) => DESCRIPTION_LEAD.has(f.name));
+  const ordered = lead ? [lead, ...team.filter((f) => f !== lead)] : team;
+  const founders = ordered.map((f) => ({ name: f.name, about: f.about }));
+  const names = ordered.map((f) => f.name);
+
+  const shared = ordered.map((f) => DOC_COPY[f.name]).find((d) => d?.shared);
+  if (shared) return { founders, cells: [{ names, ...shared }] };
+
+  if (ordered.some((f) => DOC_COPY[f.name])) {
+    return {
+      founders,
+      cells: ordered.map((f) => {
+        const d = DOC_COPY[f.name];
+        return d ? { names: [f.name], ...d } : fallbackCell([f]);
+      }),
+    };
+  }
+  return { founders, cells: [fallbackCell(ordered)] };
 }
 
 export async function loadCohort(): Promise<Project[]> {

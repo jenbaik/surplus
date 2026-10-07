@@ -3,10 +3,10 @@ import Link from "next/link";
 import { findGuestBy } from "@/lib/demoday/airtable";
 import { CONTACT_EMAIL, PARKING } from "@/lib/demoday/calendar";
 import { PATTERNS } from "@/lib/demoday/fields";
-import { loadCohort, type Block, type Project } from "@/lib/demoday/cohort";
+import { loadCohort, type Block, type Cell, type Project } from "@/lib/demoday/cohort";
 import { prettyUrl } from "@/lib/founders";
 import { Rsvp, type Prefill } from "./rsvp";
-import { MONO_LINK } from "./styles";
+import { BUTTON_BASE, MONO_LINK } from "./styles";
 
 // Invite-only: not linked from anywhere, and never indexed (also enforced
 // with an X-Robots-Tag header in next.config.ts).
@@ -28,9 +28,9 @@ const SCHEDULE: { time: string; item: string; note?: string; key?: boolean }[] =
   { time: "4:00", item: "Doors open" },
   { time: "4:30", item: "Introduction by Austin" },
   { time: "4:40", item: "Pitch Block 1", key: true },
-  { time: "5:05", item: "Break", note: "15 min" },
-  { time: "5:25", item: "Pitch Block 2", key: true },
-  { time: "5:50", item: "Close" },
+  { time: "5:15", item: "Break", note: "15 min" },
+  { time: "5:30", item: "Pitch Block 2", key: true },
+  { time: "5:55", item: "Close" },
   { time: "6:00", item: "Dinner" },
   { time: "7:00", item: "Continued mingling & happy hour" },
 ];
@@ -71,8 +71,6 @@ async function resolveCohort(): Promise<Project[]> {
 // Shown if the cohort can't be loaded, so the head never reads "0 projects".
 const FALLBACK_COUNTS = { projects: 7, founders: 10 };
 
-const WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve"];
-const inWords = (n: number) => WORDS[n] ?? String(n);
 
 // -------------------- pieces --------------------
 
@@ -103,29 +101,29 @@ function Chip({ tone = "dark", children }: { tone?: "dark" | "pink"; children: R
   );
 }
 
-// Numbered section header, as on the landing page.
+// Numbered section header: the landing page's, at a smaller size.
 function SectionHead({ n, children }: { n: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[auto_1fr] items-end gap-7 border-b-[3px] border-ink-dark pb-[18px] max-bp:gap-4 max-bp:pb-3.5">
-      <span className="font-display text-8xl leading-none text-ink-pink misreg-blue max-bp:text-6xl">
+    <div className="grid grid-cols-[auto_1fr] items-end gap-4 border-b-[3px] border-ink-dark pb-2.5">
+      <span className="font-display text-5xl leading-none text-ink-pink misreg-blue max-bp:text-4xl">
         {n}
       </span>
-      <h2 className="m-0 font-condensed text-6xl font-bold uppercase leading-none max-bp:text-3xl">
+      <h2 className="m-0 font-condensed text-4xl font-bold uppercase leading-none max-bp:text-2xl">
         {children}
       </h2>
     </div>
   );
 }
 
-function StatRow({ n, label, detail }: { n: string; label: string; detail: string }) {
+function Stat({ n, label, detail }: { n: string; label: string; detail: string }) {
   return (
-    <div className="grid grid-cols-[110px_1fr] items-center gap-3.5 border-b-[1.5px] border-ink-dark p-3.5 last:border-b-0">
-      <span className="font-display text-[26px] leading-none text-ink-pink">{n}</span>
+    <div className="grid grid-cols-[auto_1fr] items-center gap-3.5 border-[3px] border-ink-dark bg-paper px-3.5 py-3">
+      <span className="min-w-[2ch] font-display text-[34px] leading-none text-ink-pink">{n}</span>
       <span className="flex min-w-0 flex-col gap-1">
         <span className="font-condensed text-[13px] font-bold uppercase leading-[1.15] tracking-wide">
           {label}
         </span>
-        <span className="font-mono text-[13px] uppercase leading-[1.15] tracking-widest text-ink-blue">
+        <span className="font-mono text-[12px] uppercase leading-[1.15] tracking-widest text-ink-blue">
           {detail}
         </span>
       </span>
@@ -136,8 +134,8 @@ function StatRow({ n, label, detail }: { n: string; label: string; detail: strin
 function Detail({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <span className="block text-sm font-bold tracking-widest text-ink-pink">§&nbsp;{label}</span>
-      <span className="mt-1 block opacity-85">{children}</span>
+      <span className="block text-xs font-bold tracking-widest text-ink-pink">§&nbsp;{label}</span>
+      <span className="mt-0.5 block opacity-85">{children}</span>
     </div>
   );
 }
@@ -145,11 +143,11 @@ function Detail({ label, children }: { label: string; children: React.ReactNode 
 function BlockCopy({ b }: { b: Block }) {
   return (
     <div>
-      <p className="m-0 text-pretty font-serif text-[15px] leading-snug">
+      <p className="m-0">
         <Rich text={b.text} />
       </p>
       {b.items && (
-        <ul className="m-0 mt-1 list-none p-0 font-serif text-[15px] leading-snug [&_li]:relative [&_li]:py-0.5 [&_li]:pl-5 [&_li]:before:absolute [&_li]:before:left-0 [&_li]:before:text-sm [&_li]:before:text-ink-pink [&_li]:before:content-['✦']">
+        <ul className="m-0 mt-1 list-none p-0 [&_li]:relative [&_li]:py-0.5 [&_li]:pl-5 [&_li]:before:absolute [&_li]:before:left-0 [&_li]:before:text-xs [&_li]:before:text-ink-pink [&_li]:before:content-['✦']">
           {b.items.map((item) => (
             <li key={item}>{item}</li>
           ))}
@@ -159,55 +157,109 @@ function BlockCopy({ b }: { b: Block }) {
   );
 }
 
-function ProjectCard({ p, i }: { p: Project; i: number }) {
+// Bios this short show in full; longer ones get the expandable preview.
+const SHORT_BIO = 260;
+const bioLength = (blocks: Block[]) =>
+  blocks.reduce((n, b) => n + b.text.length + (b.items ?? []).join(" ").length, 0);
+
+// The /founders "Full idea" block: a 4-line preview that expands in place.
+function Bio({ blocks }: { blocks: Block[] }) {
   return (
-    <article className="relative flex min-w-0 flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper px-[26px] pb-6 pt-6 max-sm:px-5">
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute right-3.5 top-3.5 h-[50px] w-[50px] rounded-full bg-ink-yellow opacity-70 mix-blend-multiply"
-      ></span>
-      <div className="relative z-[1] mb-3 flex items-start gap-4">
-        <span className="shrink-0 font-display text-6xl leading-none text-ink-pink misreg-blue max-bp:text-5xl">
-          {String(i + 1).padStart(2, "0")}
+    <details className="group mt-2.5 border-t-[1.5px] border-dotted border-ink-dark/40 pt-1.5">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        <span className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-ink-blue group-hover:text-ink-pink motion-safe:transition-colors motion-safe:duration-150">
+          <span
+            aria-hidden="true"
+            className="inline-block font-display text-xs leading-none group-open:rotate-90 motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out"
+          >
+            ☞
+          </span>
+          Full bio
         </span>
-        <h3 className="m-0 mt-1 text-balance font-condensed text-xl font-bold uppercase leading-tight tracking-wide">
-          {p.founders.map((f, fi) => (
-            <span key={f.name}>
-              {fi > 0 && <span className="px-1 font-display text-ink-blue">+</span>}
-              {f.name}
-            </span>
-          ))}
-        </h3>
-      </div>
-      {p.tagline && (
-        <div className="mb-3 border-y-[1.5px] border-ink-dark py-1.5 font-mono text-sm uppercase tracking-widest text-ink-blue">
-          <Rich text={p.tagline} />
-        </div>
-      )}
-      <div className="flex flex-col gap-2.5">
-        {p.blocks.map((b) => (
+        <span className="mt-1 line-clamp-4 font-serif text-sm leading-snug group-open:hidden">
+          <Rich text={blocks[0]?.text ?? ""} />
+        </span>
+      </summary>
+      <div className="mt-1 flex flex-col gap-2 text-pretty font-serif text-sm leading-snug">
+        {blocks.map((b) => (
           <BlockCopy key={b.text} b={b} />
         ))}
       </div>
-      {p.links.length > 0 && (
-        <div className="mt-auto flex flex-wrap gap-x-3 gap-y-0.5 pt-3">
-          {p.links.map((u) => (
+    </details>
+  );
+}
+
+function CellView({ c, className = "" }: { c: Cell; className?: string }) {
+  return (
+    <div className={`flex min-w-0 flex-col px-4 pb-4 pt-3.5 ${className}`}>
+      <h3 className="m-0 text-balance font-condensed text-[22px] font-bold uppercase leading-[0.95] tracking-wide">
+        {c.names.map((name, i) => (
+          <span key={name}>
+            {i > 0 && <span className="px-1 font-display text-lg text-ink-blue">+</span>}
+            {name}
+          </span>
+        ))}
+      </h3>
+      {c.tagline && (
+        <p className="m-0 mt-2 text-pretty font-serif text-[15px] italic leading-snug text-ink-dark">
+          <Rich text={c.tagline} />
+        </p>
+      )}
+      {c.links.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+          {c.links.map((u) => (
             <a key={u} href={u} target="_blank" rel="noopener noreferrer" className={MONO_LINK}>
               ✦ {prettyUrl(u)}
             </a>
           ))}
         </div>
       )}
-    </article>
+      {c.blocks.length > 0 &&
+        (bioLength(c.blocks) <= SHORT_BIO ? (
+          <div className="mt-2.5 flex flex-col gap-2 border-t-[1.5px] border-dotted border-ink-dark/40 pt-2 text-pretty font-serif text-sm leading-snug">
+            {c.blocks.map((b) => (
+              <BlockCopy key={b.text} b={b} />
+            ))}
+          </div>
+        ) : (
+          <Bio blocks={c.blocks} />
+        ))}
+    </div>
   );
 }
 
-// Fills the last row of the 3-column cohort grid (span 1, 2 or a full row).
-const FILLER_SPAN: Record<number, string> = {
-  1: "col-span-1",
-  2: "col-span-2",
-  3: "col-span-3",
-};
+function ProjectCard({ p, i }: { p: Project; i: number }) {
+  const team = p.founders.length > 1;
+  return (
+    <article
+      className={`border-b-[3px] border-r-[3px] border-ink-dark bg-paper ${
+        team ? "col-span-2 max-sm:col-span-full" : ""
+      }`}
+    >
+      <div className="px-4 pt-3 font-mono text-[11px] uppercase tracking-widest text-ink-pink">
+        No. {String(i + 1).padStart(2, "0")}
+      </div>
+      <div className="flex items-stretch max-sm:flex-col">
+        {p.cells.map((c, ci) => (
+          <div key={c.names.join("+")} className="flex flex-1 items-stretch max-sm:flex-col">
+            {ci > 0 && (
+              <div className="relative flex items-center justify-center px-0.5 max-sm:py-1">
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-4 left-1/2 border-l-[1.5px] border-dotted border-ink-dark/40 max-sm:inset-x-4 max-sm:inset-y-auto max-sm:left-4 max-sm:top-1/2 max-sm:border-l-0 max-sm:border-t-[1.5px]"
+                ></span>
+                <span className="relative select-none bg-paper py-1 font-display text-2xl leading-none text-ink-blue">
+                  +
+                </span>
+              </div>
+            )}
+            <CellView c={c} className="flex-1" />
+          </div>
+        ))}
+      </div>
+    </article>
+  );
+}
 
 // -------------------- page --------------------
 
@@ -222,12 +274,14 @@ export default async function DemoDayPage({
   const founderCount = projects.reduce((n, p) => n + p.founders.length, 0);
   const shownProjects = projects.length || FALLBACK_COUNTS.projects;
   const shownFounders = projects.length ? founderCount : FALLBACK_COUNTS.founders;
-  const fillerSpan = (3 - (projects.length % 3)) % 3 || 3;
+  // Team cards span 2 of the 4 desktop columns; square off the last row.
+  const units = projects.reduce((n, p) => n + (p.founders.length > 1 ? 2 : 1), 0);
+  const fillerCols = (4 - (units % 4)) % 4;
 
   return (
     <>
       {/* =================== HERO =================== */}
-      <section className="relative overflow-x-clip pb-14 pt-9 max-bp:pb-10">
+      <section className="relative overflow-x-clip pb-10 pt-9 max-bp:pb-8">
         <div className="relative mx-auto max-w-[1320px] px-14 max-bp:px-5">
           <div
             className="pointer-events-none absolute right-[-160px] top-[110px] z-0 h-80 w-80 opacity-85 max-bp:hidden"
@@ -274,103 +328,82 @@ export default async function DemoDayPage({
             <span className="max-bp:hidden"></span>
           </div>
 
-          {/* Desktop: statement + details on the left, stats + RSVP badge on
-              the right. Phones: statement, then stats + badge, then details. */}
-          <div className="relative z-[1] mt-6 grid grid-cols-[1.35fr_1fr] items-start gap-x-10 gap-y-6 max-bp:mt-7 max-bp:grid-cols-1 max-bp:gap-7">
-            <div className="col-start-1 row-start-1 max-bp:col-auto max-bp:row-auto">
-              <p className="m-0 max-w-[30ch] font-serif text-[clamp(24px,2.6vw,34px)] font-medium leading-[1.2] text-ink-dark [&_em]:italic [&_em]:text-ink-blue [&_mark]:bg-ink-yellow [&_mark]:px-1 [&_mark]:text-ink-dark max-bp:max-w-none">
-                {inWords(shownProjects)} projects, <em>ten weeks</em>, and{" "}
-                <mark>six minutes each</mark> to show you what they built.
-              </p>
+          <div className="relative z-[1] mt-6 flex flex-wrap items-center gap-x-8 gap-y-4 max-bp:mt-5 max-bp:gap-x-5">
+            <a
+              href="#rsvp"
+              className={`${BUTTON_BASE} min-w-[300px] px-12 py-3.5 text-4xl leading-none max-bp:min-w-0 max-bp:px-8 max-bp:text-3xl max-sm:w-full`}
+            >
+              RSVP
+            </a>
+            <span className="font-condensed text-[clamp(22px,2.6vw,34px)] font-bold uppercase leading-tight tracking-wide">
+              <span className="whitespace-nowrap text-ink-pink">Friday, Oct 23</span>
+              <span className="px-2 text-ink-blue">·</span>
+              <span className="whitespace-nowrap">Doors 4PM</span>
+              <span className="px-2 text-ink-blue">·</span>
+              <span className="whitespace-nowrap">Mox SF</span>
+            </span>
+          </div>
 
-              <p className="m-0 mt-6 font-condensed text-[clamp(22px,2.6vw,34px)] font-bold uppercase leading-tight tracking-wide">
-                <span className="whitespace-nowrap text-ink-pink">Friday, Oct 23</span>
-                <span className="px-2 text-ink-blue">·</span>
-                <span className="whitespace-nowrap">Doors 4PM</span>
-                <span className="px-2 text-ink-blue">·</span>
-                <span className="whitespace-nowrap">Mox SF</span>
-              </p>
-            </div>
+          <p className="relative z-[1] m-0 mt-7 max-w-[40ch] font-serif text-[clamp(22px,2.4vw,30px)] font-medium leading-[1.22] text-ink-dark [&_em]:italic [&_em]:text-ink-blue [&_mark]:bg-ink-yellow [&_mark]:px-1 [&_mark]:text-ink-dark max-bp:max-w-none">
+            <em>Surplus</em> is an incubator for software startups to create{" "}
+            <mark>massive public good</mark> in the age of transformative AI. Join us to celebrate
+            our founders and their progress.
+          </p>
 
-            <div className="col-start-1 row-start-2 grid grid-cols-2 gap-x-8 gap-y-4 self-start border-t-[1.5px] border-dotted border-ink-dark/40 pt-4 font-mono text-sm uppercase leading-normal tracking-widest max-bp:order-last max-bp:col-auto max-bp:row-auto max-sm:grid-cols-1">
-                <Detail label="Where">Mox SF, 1680 Mission St, San Francisco.</Detail>
-                <Detail label="Getting there">Nearest BART is 16th St Mission.</Detail>
-                <Detail label="Parking">
-                  <a
-                    href={PARKING.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-ink-blue underline underline-offset-2 hover:bg-ink-yellow hover:text-ink-dark hover:no-underline"
-                  >
-                    {PARKING.name}
-                  </a>
-                  , {PARKING.note}.
-                </Detail>
-                <Detail label="Who">~40 guests, invite only.</Detail>
-            </div>
+          <div className="relative z-[1] mt-7 grid grid-cols-3 gap-4 max-bp:gap-3 max-sm:grid-cols-1">
+            <Stat n={String(shownProjects)} label="Projects presenting" detail={`${shownFounders} founders`} />
+            <Stat n="8" label="Minutes per pitch" detail="Two pitch blocks" />
+            <Stat n="~40" label="Guests" detail="Invite only" />
+          </div>
 
-            <aside className="relative col-start-2 row-span-2 row-start-1 flex flex-col items-stretch gap-5 max-bp:col-auto max-bp:row-auto max-bp:row-span-1">
-              <div className="border-[3px] border-ink-dark bg-paper">
-                <StatRow n={String(shownProjects)} label="Projects presenting" detail={`${shownFounders} founders`} />
-                <StatRow n="6" label="Minutes per pitch" detail="Two pitch blocks" />
-                <StatRow n="~40" label="Guests" detail="Invite only" />
-              </div>
-
-              <div className="flex justify-end pt-2 max-bp:justify-center">
-                <a
-                  href="#rsvp"
-                  aria-label="RSVP"
-                  className="relative inline-block h-[230px] w-[230px] -rotate-6 cursor-pointer no-underline focus-visible:outline-[3px] focus-visible:outline-offset-4 focus-visible:outline-ink-blue motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out motion-safe:hover:-rotate-3 motion-safe:hover:scale-105 max-bp:h-[190px] max-bp:w-[190px]"
-                >
-                  <span className="absolute inset-0 z-[-1] translate-x-2 translate-y-2 rounded-full bg-ink-blue opacity-90 mix-blend-multiply"></span>
-                  <span className="absolute inset-0 grid place-items-center rounded-full bg-ink-pink text-center text-paper shadow-[inset_0_0_0_4px_var(--color-paper),inset_0_0_0_6px_var(--color-ink-pink)]">
-                    <span className="flex flex-col items-center gap-1.5">
-                      <span className="font-display text-5xl leading-none tracking-wide max-bp:text-4xl">RSVP</span>
-                      <span className="font-mono text-sm uppercase tracking-widest">Fri, Oct 23</span>
-                      <span className="mt-0.5 font-display text-xl tracking-wider">☞ ☞ ☞</span>
-                    </span>
-                  </span>
-                </a>
-              </div>
-            </aside>
+          <div className="relative z-[1] mt-5 grid grid-cols-3 gap-x-8 gap-y-3 border-t-[1.5px] border-dotted border-ink-dark/40 pt-3 font-mono text-xs uppercase leading-normal tracking-widest max-sm:grid-cols-1">
+            <Detail label="Where">Mox SF, 1680 Mission St, San Francisco.</Detail>
+            <Detail label="Getting there">Nearest BART is 16th St Mission.</Detail>
+            <Detail label="Parking">
+              <a
+                href={PARKING.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink-blue underline underline-offset-2 hover:bg-ink-yellow hover:text-ink-dark hover:no-underline"
+              >
+                {PARKING.name}
+              </a>
+              , {PARKING.note}.
+            </Detail>
           </div>
         </div>
       </section>
 
       {/* =================== BANNER =================== */}
-      <div className="border-y-[3px] border-t-8 border-ink-dark bg-ink-dark px-10 py-4 text-center font-condensed text-[clamp(18px,2.2vw,26px)] font-bold uppercase leading-tight tracking-wider text-paper max-bp:px-5 max-bp:py-3.5 max-bp:text-sm">
+      <div className="bg-ink-dark px-10 py-2.5 text-center font-condensed text-lg font-bold uppercase tracking-wider text-paper max-bp:px-5 max-bp:text-sm">
         ✦&nbsp;&nbsp;Pitches · Dinner · Happy hour ·{" "}
         <em className="not-italic text-ink-yellow">The first Surplus cohort</em>&nbsp;&nbsp;✦
       </div>
 
       {/* =================== THE EVENING =================== */}
-      <section className="pb-6 pt-14 max-bp:pt-10">
+      <section className="pb-4 pt-8 max-bp:pt-6">
         <div className="mx-auto max-w-[1320px] px-14 max-bp:px-5">
           <SectionHead n="01">The Evening</SectionHead>
-          <ol className="m-0 list-none p-0">
+          <ol className="m-0 mt-1 list-none columns-2 gap-12 p-0 max-sm:columns-1">
             {SCHEDULE.map((row) => (
               <li
                 key={row.time}
-                className="grid grid-cols-[120px_48px_1fr_220px] items-center gap-6 border-b-[3px] border-ink-dark py-4 max-bp:grid-cols-[64px_24px_1fr] max-bp:gap-3"
+                className="grid break-inside-avoid grid-cols-[52px_1fr] items-baseline gap-3 border-b border-ink-dark/20 py-1.5"
               >
-                <span className="font-display text-xl leading-none text-ink-pink max-bp:text-lg">
-                  {row.time}
-                </span>
-                {row.key ? (
-                  <span className="h-7 w-7 justify-self-center rounded-full bg-ink-pink shadow-[0_0_0_4px_var(--color-paper),0_0_0_5.5px_var(--color-ink-pink)] max-bp:h-5 max-bp:w-5"></span>
-                ) : (
-                  <span className="h-3.5 w-3.5 justify-self-center rounded-full bg-ink-dark"></span>
-                )}
-                <div className="flex flex-wrap items-baseline gap-x-3">
-                  <span className="font-condensed text-3xl font-bold uppercase leading-tight max-bp:text-xl">
+                <span className="font-mono text-sm text-ink-blue">{row.time}</span>
+                <span className="flex flex-wrap items-baseline gap-x-2">
+                  <span
+                    className={`font-condensed text-lg font-bold uppercase tracking-wide ${
+                      row.key ? "text-ink-pink" : ""
+                    }`}
+                  >
                     {row.item}
                   </span>
                   {row.note && (
-                    <span className="font-serif text-sm italic text-ink-dark">{row.note}</span>
+                    <span className="font-mono text-xs uppercase tracking-widest text-ink-dark/60">
+                      {row.note}
+                    </span>
                   )}
-                </div>
-                <span className="text-right font-mono text-sm uppercase tracking-widest text-ink-blue max-bp:hidden">
-                  {row.key && <b className="text-ink-pink">The pitches</b>}
                 </span>
               </li>
             ))}
@@ -379,77 +412,54 @@ export default async function DemoDayPage({
       </section>
 
       {/* =================== THE COHORT =================== */}
-      <section className="pb-16 pt-12 max-bp:pb-12 max-bp:pt-8">
+      <section className="pb-12 pt-8 max-bp:pb-10 max-bp:pt-6">
         <div className="mx-auto max-w-[1320px] px-14 max-bp:px-5">
           <SectionHead n="02">The Cohort</SectionHead>
-          <div className="grid grid-cols-[1.4fr_1fr] items-end gap-10 pb-8 pt-7 max-bp:grid-cols-1 max-bp:gap-3 max-bp:pb-6 max-bp:pt-5">
-            <p className="m-0 font-serif text-xl leading-snug [&_b]:bg-ink-yellow [&_b]:px-1 [&_b]:font-semibold max-bp:text-lg">
-              <b>{inWords(shownProjects)} projects</b> from the first Surplus cohort, in the order
-              they present.
-            </p>
-            <div className="text-right font-display text-6xl leading-none text-ink-blue misreg-pink max-bp:hidden">
-              ☞ ☞ ☞
-            </div>
-          </div>
+          <p className="m-0 mt-2 font-mono text-xs uppercase tracking-widest text-ink-dark/70">
+            {shownProjects} projects · {shownFounders} founders · in presenting order · full
+            profiles at{" "}
+            <Link
+              href="/founders"
+              className="text-ink-blue underline underline-offset-2 hover:bg-ink-yellow hover:text-ink-dark hover:no-underline"
+            >
+              surplus.dev/founders
+            </Link>
+          </p>
           {projects.length > 0 && (
-            <div className="grid grid-cols-3 border-l-[3px] border-t-[3px] border-ink-dark max-bp:grid-cols-1">
+            <div className="mt-4 grid grid-cols-4 border-l-[3px] border-t-[3px] border-ink-dark max-bp:grid-cols-2 max-sm:grid-cols-1">
               {projects.map((p, idx) => (
                 <ProjectCard key={p.founders[0].name} p={p} i={idx} />
               ))}
-              <Link
-                href="/founders"
-                className={`group flex min-h-[140px] flex-col justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-[26px] py-6 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow max-bp:col-span-1 ${FILLER_SPAN[fillerSpan]}`}
-              >
-                <span className="font-mono text-sm uppercase tracking-widest opacity-70">
-                  Full profiles
-                </span>
-                <span className="font-condensed text-3xl font-bold uppercase leading-none tracking-wide">
-                  Meet the founders <span className="font-display text-ink-yellow">☞</span>
-                </span>
-              </Link>
+              {fillerCols > 0 && (
+                <div
+                  aria-hidden="true"
+                  className="border-b-[3px] border-r-[3px] border-ink-dark bg-paper-deep max-bp:hidden"
+                  style={{ gridColumn: `span ${fillerCols} / span ${fillerCols}` }}
+                ></div>
+              )}
             </div>
           )}
         </div>
       </section>
 
       {/* =================== RSVP =================== */}
-      <section
-        id="rsvp"
-        className="relative overflow-hidden bg-ink-dark pb-16 pt-20 text-paper max-bp:pb-12 max-bp:pt-14"
-      >
-        <span
-          aria-hidden="true"
-          className="halftone pointer-events-none absolute -right-[100px] -top-[100px] h-[500px] w-[500px] opacity-50 [--dot-gap:14px] [--dot:3px]"
-        ></span>
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-[150px] -left-[120px] h-[420px] w-[420px] rounded-full bg-ink-blue opacity-40 mix-blend-screen"
-        ></span>
-        <div className="relative z-[1] mx-auto max-w-[1320px] px-14 max-bp:px-5">
-          <h2 className="m-0 font-display text-[clamp(56px,8vw,120px)] leading-[0.82] tracking-[-0.04em]">
-            <span className="text-ink-yellow">RSVP</span> FOR
-            <br />
-            <span className="text-ink-pink">OCT 23</span>
-          </h2>
-          <div className="mt-[30px] grid grid-cols-[1fr_minmax(0,600px)] items-start gap-12 border-t-[3px] border-paper pt-[30px] max-bp:grid-cols-1 max-bp:gap-8">
-            <div className="max-w-[40ch]">
-              <p className="m-0 font-serif text-xl leading-snug max-bp:text-lg">
-                Friday, October 23 at Mox SF, 1680 Mission St. Doors at four, first pitch at 4:40,
-                dinner at six.
-              </p>
-              <p className="m-0 mt-6 font-mono text-sm uppercase tracking-widest opacity-80">
-                Questions, or need to cancel?
-              </p>
+      <section id="rsvp" className="scroll-mt-6 pb-14 pt-2">
+        <div className="mx-auto max-w-[1320px] px-14 max-bp:px-5">
+          <SectionHead n="03">
+            RSVP <span className="text-ink-pink">here</span>
+          </SectionHead>
+          <div className="mt-4 max-w-[640px]">
+            <Rsvp prefill={prefill} inviteCode={inviteCode} />
+            <p className="mt-4 border-t-[1.5px] border-dotted border-ink-dark/40 pt-3 font-serif text-base">
+              Questions, or need to cancel? Email{" "}
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
-                className="font-mono text-sm uppercase tracking-widest text-ink-yellow underline underline-offset-2 hover:text-paper"
+                className="text-ink-blue underline underline-offset-2 hover:bg-ink-yellow hover:text-ink-dark hover:no-underline"
               >
                 {CONTACT_EMAIL}
               </a>
-            </div>
-            <div className="text-ink-dark shadow-[8px_8px_0_var(--color-ink-blue)]">
-              <Rsvp prefill={prefill} inviteCode={inviteCode} />
-            </div>
+              .
+            </p>
           </div>
         </div>
       </section>
