@@ -3,6 +3,9 @@
 // Surplus?" (Surplus Home), read 2026-10-07: names, project names, text
 // and links. The only edit allowed is cutting words; nothing is added or
 // reworded. Checked word-for-word against the doc on 2026-10-07.
+//
+// Exceptions Jen gave directly: Francisco's "CA" is spelled out as
+// "Community Archive", with its site (2026-10-07).
 
 // `*word*` renders in italics; a block with `items` renders as a list under
 // its lead-in, exactly as the founder wrote it.
@@ -46,10 +49,10 @@ export const DOC_COPY: Record<string, DocEntry> = {
     links: ["https://safely.bio"],
   },
   "Francisco Carvalho (xiq)": {
-    tagline: "CA",
+    tagline: "Community Archive",
     blocks: [
       {
-        text: "CA is an open social data project that",
+        text: "Community Archive is an open social data project that",
         items: [
           "Archives people’s tweets",
           "Lets people (and me) build tools for epistemics and cooperation and community",
@@ -57,7 +60,7 @@ export const DOC_COPY: Record<string, DocEntry> = {
         ],
       },
     ],
-    links: [],
+    links: ["https://www.community-archive.org/"],
   },
   "Christine Shiba": {
     tagline: "Cuties!",
