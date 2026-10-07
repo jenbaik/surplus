@@ -33,21 +33,21 @@ const SCHEDULE: { time: string; item: string; note?: string; key?: boolean }[] =
 ];
 
 // ?r=<token> prefills everything (it's their magic link); ?i=<code> only
-// name / email / note. A failed lookup is silent — the page renders
+// name / email. A failed lookup is silent — the page renders
 // regardless, with an empty form.
 async function resolvePrefill(code?: string, token?: string): Promise<Prefill | null> {
   try {
     if (token && PATTERNS.token.test(token)) {
       const g = await findGuestBy("token", token);
       if (g) {
-        const { name, email, note, rsvp, diet, anything } = g;
-        return { name, email, note, rsvp, diet, anything, token: g.token };
+        const { name, email, rsvp, diet, anything } = g;
+        return { name, email, rsvp, diet, anything, token: g.token };
       }
     }
     if (code && PATTERNS.inviteCode.test(code)) {
       const g = await findGuestBy("inviteCode", code);
       if (g) {
-        return { name: g.name, email: g.email, note: g.note, rsvp: "", diet: "", anything: "", token: "" };
+        return { name: g.name, email: g.email, rsvp: "", diet: "", anything: "", token: "" };
       }
     }
   } catch (e) {
