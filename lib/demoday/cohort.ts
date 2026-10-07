@@ -20,8 +20,8 @@ const RUNNING_ORDER = [
   "Joey Bream",
   "Haoxing Du",
   "Beat Hagenlocher",
-  "Francisco Carvalho (xiq)",
   "Vaishnav Sunil",
+  "Francisco Carvalho (xiq)",
   "Derik Kauffman",
 ];
 

@@ -257,14 +257,14 @@ function Plus() {
   );
 }
 
-function ProjectCard({ p, i }: { p: Project; i: number }) {
+function ProjectCard({ p, i, span }: { p: Project; i: number; span: string }) {
   const team = p.founders.length > 1;
   const shared = team && p.cells.length === 1;
   return (
     <article
-      className={`flex flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper ${
-        team ? "col-span-2 max-sm:col-span-full" : ""
-      }`}
+      className={`flex flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper ${span} ${
+        team ? "max-bp:col-span-12" : "max-bp:col-span-6"
+      } max-sm:col-span-12`}
     >
       <div className="px-4 pt-3 font-mono text-[11px] uppercase tracking-widest text-ink-pink">
         No. {String(i + 1).padStart(2, "0")}
@@ -303,13 +303,44 @@ function ProjectCard({ p, i }: { p: Project; i: number }) {
   );
 }
 
-// Fills the rest of the last row (literal classes so Tailwind sees them).
-const FILL_SPAN: Record<number, string> = {
-  1: "col-span-1",
-  2: "col-span-2",
+// Literal classes so Tailwind can see them.
+const COL_SPAN: Record<number, string> = {
   3: "col-span-3",
   4: "col-span-4",
+  5: "col-span-5",
+  6: "col-span-6",
+  8: "col-span-8",
+  12: "col-span-12",
 };
+
+// 12-column rows: teams take 6, solo founders 4. Columns left over at the
+// end of a row go to that row's solo founders (else its teams), so every
+// row fills edge to edge and solos sharing a row get equal widths.
+function layoutSpans(projects: Project[]): string[] {
+  const want = projects.map((p) => (p.founders.length > 1 ? 6 : 4));
+  const spans = [...want];
+  let start = 0;
+  let used = 0;
+  const closeRow = (end: number) => {
+    const left = 12 - used;
+    if (left <= 0) return;
+    const row = Array.from({ length: end - start }, (_, k) => start + k);
+    const solos = row.filter((k) => want[k] === 4);
+    const takers = solos.length ? solos : row;
+    const each = Math.floor(left / takers.length);
+    takers.forEach((k, n) => (spans[k] += each + (n < left % takers.length ? 1 : 0)));
+  };
+  want.forEach((w, k) => {
+    if (used + w > 12) {
+      closeRow(k);
+      start = k;
+      used = 0;
+    }
+    used += w;
+  });
+  closeRow(want.length);
+  return spans.map((n) => COL_SPAN[n] ?? "col-span-12");
+}
 
 // -------------------- page --------------------
 
@@ -324,9 +355,7 @@ export default async function DemoDayPage({
   const founderCount = projects.reduce((n, p) => n + p.founders.length, 0);
   const shownProjects = projects.length || FALLBACK_COUNTS.projects;
   const shownFounders = projects.length ? founderCount : FALLBACK_COUNTS.founders;
-  // Teams take 2 of the 4 columns; "Meet the founders" fills the last row.
-  const units = projects.reduce((n, p) => n + (p.founders.length > 1 ? 2 : 1), 0);
-  const fillCols = (4 - (units % 4)) % 4 || 4;
+  const spans = layoutSpans(projects);
 
   return (
     <>
@@ -467,18 +496,18 @@ export default async function DemoDayPage({
             </Link>
           </p>
           {projects.length > 0 && (
-            <div className="mt-4 grid grid-cols-4 border-l-[3px] border-t-[3px] border-ink-dark max-bp:grid-cols-2 max-sm:grid-cols-1">
+            <div className="mt-4 grid grid-cols-12 border-l-[3px] border-t-[3px] border-ink-dark">
               {projects.map((p, idx) => (
-                <ProjectCard key={p.founders[0].name} p={p} i={idx} />
+                <ProjectCard key={p.founders[0].name} p={p} i={idx} span={spans[idx]} />
               ))}
               <Link
                 href="/founders"
-                className={`group flex min-h-[140px] flex-col justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-5 py-5 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow max-bp:col-span-full motion-safe:transition-colors ${FILL_SPAN[fillCols]}`}
+                className="group col-span-12 flex items-center justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-5 py-3 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow motion-safe:transition-colors max-sm:flex-col max-sm:items-start max-sm:gap-1"
               >
                 <span className="font-mono text-[11px] uppercase tracking-widest opacity-70">
                   Full profiles
                 </span>
-                <span className="font-condensed text-3xl font-bold uppercase leading-none tracking-wide">
+                <span className="font-condensed text-2xl font-bold uppercase leading-none tracking-wide">
                   Meet the founders <span className="font-display text-ink-yellow">☞</span>
                 </span>
               </Link>
