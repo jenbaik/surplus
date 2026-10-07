@@ -156,38 +156,6 @@ function BlockCopy({ b }: { b: Block }) {
   );
 }
 
-// Bios this short show in full; longer ones get the expandable preview.
-const SHORT_BIO = 260;
-const bioLength = (blocks: Block[]) =>
-  blocks.reduce((n, b) => n + b.text.length + (b.items ?? []).join(" ").length, 0);
-
-// The /founders "Full idea" block: a 6-line preview that expands in place.
-function Bio({ blocks }: { blocks: Block[] }) {
-  return (
-    <details className="group mt-2.5 border-t-[1.5px] border-dotted border-ink-dark/40 pt-1.5">
-      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-        <span className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-ink-blue group-hover:text-ink-pink motion-safe:transition-colors motion-safe:duration-150">
-          <span
-            aria-hidden="true"
-            className="inline-block font-display text-xs leading-none group-open:rotate-90 motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out"
-          >
-            ☞
-          </span>
-          Full bio
-        </span>
-        <span className="mt-1 line-clamp-6 font-serif text-sm leading-snug group-open:hidden">
-          <Rich text={blocks[0]?.text ?? ""} />
-        </span>
-      </summary>
-      <div className="mt-1 flex flex-col gap-2 text-pretty font-serif text-sm leading-snug">
-        {blocks.map((b) => (
-          <BlockCopy key={b.text} b={b} />
-        ))}
-      </div>
-    </details>
-  );
-}
-
 function CopyBody({ c }: { c: Cell }) {
   return (
     <>
@@ -205,16 +173,13 @@ function CopyBody({ c }: { c: Cell }) {
           ))}
         </div>
       )}
-      {c.blocks.length > 0 &&
-        (bioLength(c.blocks) <= SHORT_BIO ? (
-          <div className="mt-2.5 flex flex-col gap-2 border-t-[1.5px] border-dotted border-ink-dark/40 pt-2 text-pretty font-serif text-sm leading-snug">
-            {c.blocks.map((b) => (
-              <BlockCopy key={b.text} b={b} />
-            ))}
-          </div>
-        ) : (
-          <Bio blocks={c.blocks} />
-        ))}
+      {c.blocks.length > 0 && (
+        <div className="mt-2.5 flex flex-col gap-2 border-t-[1.5px] border-dotted border-ink-dark/40 pt-2 text-pretty font-serif text-sm leading-snug">
+          {c.blocks.map((b) => (
+            <BlockCopy key={b.text} b={b} />
+          ))}
+        </div>
+      )}
     </>
   );
 }
