@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Fragment } from "react";
-import { listApplicants, listHiddenApplicantIds } from "@/lib/review/airtable";
-import { ADMITTED_VIEW_ID, type Applicant } from "@/lib/review/fields";
+import { loadPublicFounders, prettyUrl, type PublicFounder } from "@/lib/founders";
 
 // Statically prerendered, refreshed from Airtable every 5 minutes.
 export const revalidate = 300;
@@ -12,94 +11,6 @@ export const metadata: Metadata = {
   description:
     "The founders of Surplus cohort 1 — building software for massive public good. In residence at Mox, San Francisco, July–October 2026.",
 };
-
-// -------------------- data shaping --------------------
-
-// Drop placeholder answers ("N/A", "-", "none") so cards only render substance.
-function clean(s: string): string {
-  const t = s.trim();
-  return t.length > 2 && !/^(n\/?a\.?|none\.?|-+)$/i.test(t) ? t : "";
-}
-
-// Pull URLs out of free-text link fields ("www.a.com; https://b.com (password: x)")
-// — only URL-shaped tokens are kept, so stray commentary never renders publicly.
-function extractUrls(raw: string): string[] {
-  return raw
-    .split(/[\s;,]+/)
-    .map((t) => t.replace(/[).,;]+$/, ""))
-    .filter(
-      (t) =>
-        /^https?:\/\/\S+\.\S+/.test(t) ||
-        /^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(t)
-    )
-    .map((t) => (t.startsWith("http") ? t : `https://${t}`));
-}
-
-function prettyUrl(url: string): string {
-  try {
-    const u = new URL(url);
-    const s = u.hostname.replace(/^www\./, "") + u.pathname.replace(/\/$/, "");
-    return s.length > 28 ? s.slice(0, 26) + "…" : s;
-  } catch {
-    return url;
-  }
-}
-
-const isPending = (a: Applicant) => a.status === "Acceptance sent";
-
-// Only these whitelisted, already-sanitized fields may reach the render tree.
-// Full Applicant records carry sensitive data (email, reviewer notes, AI
-// grades) — project them away at the fetch boundary so no future refactor
-// (e.g. a client component) can accidentally serialize them.
-type PublicFounder = {
-  name: string;
-  about: string;
-  ideaShort: string;
-  ideaLinks: string[];
-  ideaLong: string;
-  otherIdeas: string;
-  pending: boolean;
-};
-
-function toPublic(a: Applicant): PublicFounder {
-  return {
-    name: a.name,
-    about: extractUrls(a.link1)[0] ?? "",
-    ideaShort: clean(a.ideaShort),
-    ideaLinks: extractUrls(a.ideaLink),
-    ideaLong: clean(a.mainIdea),
-    otherIdeas: clean(a.otherInterests),
-    pending: isPending(a),
-  };
-}
-
-// Group cofounding teams (connected components over the cofounder links,
-// restricted to the admitted set), teams first, both in view order.
-function groupFounders(list: Applicant[]): Applicant[][] {
-  const byId = new Map(list.map((a) => [a.id, a]));
-  const seen = new Set<string>();
-  const teams: Applicant[][] = [];
-  const solos: Applicant[][] = [];
-  for (const a of list) {
-    if (seen.has(a.id)) continue;
-    seen.add(a.id);
-    const group: Applicant[] = [];
-    const queue = [a.id];
-    while (queue.length) {
-      const rec = byId.get(queue.shift()!);
-      if (!rec) continue;
-      group.push(rec);
-      for (const next of rec.cofounderIds) {
-        if (byId.has(next) && !seen.has(next)) {
-          seen.add(next);
-          queue.push(next);
-        }
-      }
-    }
-    (group.length > 1 ? teams : solos).push(group);
-  }
-  return [...teams, ...solos];
-}
 
 // -------------------- pieces --------------------
 
@@ -195,16 +106,7 @@ function GroupLabel({ children }: { children: React.ReactNode }) {
 // -------------------- page --------------------
 
 export default async function FoundersPage() {
-  const [applicants, hiddenIds] = await Promise.all([
-    listApplicants({ view: ADMITTED_VIEW_ID }),
-    listHiddenApplicantIds(),
-  ]);
-  // Founders marked "Hidden" in the Founders table are dropped before
-  // grouping, so a hidden founder's teammate renders as a solo founder.
-  const admitted = applicants.filter((a) => !hiddenIds.has(a.id));
-  // Grouping needs record ids; everything after this line sees only the
-  // whitelisted PublicFounder projection.
-  const groups = groupFounders(admitted).map((g) => g.map(toPublic));
+  const groups = await loadPublicFounders();
   const founderCount = groups.reduce((n, g) => n + g.length, 0);
   const teams = groups.filter((g) => g.length > 1);
   const solos = groups.filter((g) => g.length === 1);
