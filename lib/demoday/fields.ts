@@ -26,12 +26,11 @@ export const G = {
   firstName: "fldIc3nxc3eamSHer", // First name (formula, read-only; used by the automation emails)
 } as const;
 
-// filterByFormula can only reference fields by NAME, so the three lookup
+// filterByFormula can only reference fields by NAME, so the two lookup
 // keys are also listed by name. Renaming one of these columns in Airtable
 // breaks lookups (writes and reads stay ID-based and are unaffected).
 export const G_NAMES = {
   email: "Email",
-  inviteCode: "Invite code",
   token: "Token",
 } as const;
 
@@ -44,7 +43,6 @@ export type Guest = {
   email: string;
   org: string;
   note: string;
-  inviteCode: string;
   rsvp: Rsvp | "";
   diet: string;
   anything: string;
@@ -88,7 +86,6 @@ export function normalizeGuest(rec: RawGuestRecord): Guest {
     email: str(f[G.email]).trim(),
     org: str(f[G.org]).trim(),
     note: str(f[G.personalNote]).trim(),
-    inviteCode: str(f[G.inviteCode]).trim(),
     rsvp: (RSVPS as readonly string[]).includes(rsvp) ? (rsvp as Rsvp) : "",
     diet: str(f[G.diet]).trim(),
     anything: str(f[G.anything]).trim(),
@@ -101,11 +98,10 @@ export function normalizeGuest(rec: RawGuestRecord): Guest {
   };
 }
 
-// Shapes of the three lookup keys, enforced before anything reaches a
+// Shapes of the lookup keys, enforced before anything reaches a
 // formula or a URL. Shared by the API route, the page, and the client form.
 export const PATTERNS = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
-  inviteCode: /^[a-z0-9][a-z0-9._-]{0,63}$/i,
   token: /^[a-f0-9]{32}$/,
 } as const;
 

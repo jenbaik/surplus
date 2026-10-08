@@ -32,22 +32,15 @@ const SCHEDULE: { time: string; item: string; note?: string; key?: boolean }[] =
   { time: "7:30", item: "Dinner & Mingling" },
 ];
 
-// ?r=<token> prefills everything (it's their magic link); ?i=<code> only
-// name / email / note. A failed lookup is silent — the page renders
-// regardless, with an empty form.
-async function resolvePrefill(code?: string, token?: string): Promise<Prefill | null> {
+// ?r=<token> (the edit link in the confirmation email) prefills their saved
+// answers. A failed lookup is silent: the page renders with an empty form.
+async function resolvePrefill(token?: string): Promise<Prefill | null> {
   try {
     if (token && PATTERNS.token.test(token)) {
       const g = await findGuestBy("token", token);
       if (g) {
-        const { name, email, note, rsvp, diet, anything } = g;
-        return { name, email, note, rsvp, diet, anything, token: g.token };
-      }
-    }
-    if (code && PATTERNS.inviteCode.test(code)) {
-      const g = await findGuestBy("inviteCode", code);
-      if (g) {
-        return { name: g.name, email: g.email, note: g.note, rsvp: "", diet: "", anything: "", token: "" };
+        const { name, email, rsvp, diet, anything } = g;
+        return { name, email, rsvp, diet, anything, token: g.token };
       }
     }
   } catch (e) {
@@ -310,11 +303,10 @@ function layoutSpans(projects: Project[]): string[] {
 export default async function DemoDayPage({
   searchParams,
 }: {
-  searchParams: Promise<{ i?: string; r?: string }>;
+  searchParams: Promise<{ r?: string }>;
 }) {
-  const { i, r } = await searchParams;
-  const [projects, prefill] = await Promise.all([resolveCohort(), resolvePrefill(i, r)]);
-  const inviteCode = i && PATTERNS.inviteCode.test(i) ? i : "";
+  const { r } = await searchParams;
+  const [projects, prefill] = await Promise.all([resolveCohort(), resolvePrefill(r)]);
   const founderCount = projects.reduce((n, p) => n + p.founders.length, 0);
   const shownProjects = projects.length || FALLBACK_COUNTS.projects;
   const shownFounders = projects.length ? founderCount : FALLBACK_COUNTS.founders;
@@ -449,31 +441,13 @@ export default async function DemoDayPage({
         <div className="mx-auto max-w-[1320px] px-14 max-bp:px-5">
           <SectionHead n="02">The Cohort</SectionHead>
           <p className="m-0 mt-2 font-mono text-xs uppercase tracking-widest text-ink-dark/70">
-            {shownProjects} projects · {shownFounders} founders · in presenting order · full
-            profiles at{" "}
-            <Link
-              href="/founders"
-              className="text-ink-blue underline underline-offset-2 hover:bg-ink-yellow hover:text-ink-dark hover:no-underline"
-            >
-              surplus.dev/founders
-            </Link>
+            {shownProjects} projects · {shownFounders} founders · in presenting order
           </p>
           {projects.length > 0 && (
             <div className="mt-4 grid grid-cols-12 border-l-[3px] border-t-[3px] border-ink-dark">
               {projects.map((p, idx) => (
                 <ProjectCard key={p.founders[0].name} p={p} i={idx} span={spans[idx]} />
               ))}
-              <Link
-                href="/founders"
-                className="group col-span-12 flex items-center justify-between gap-4 border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark px-5 py-3 text-paper no-underline hover:bg-ink-blue focus-visible:outline-[3px] focus-visible:-outline-offset-[6px] focus-visible:outline-ink-yellow motion-safe:transition-colors max-sm:flex-col max-sm:items-start max-sm:gap-1"
-              >
-                <span className="font-mono text-[11px] uppercase tracking-widest opacity-70">
-                  Full profiles
-                </span>
-                <span className="font-condensed text-2xl font-bold uppercase leading-none tracking-wide">
-                  Meet the founders <span className="font-display text-ink-yellow">☞</span>
-                </span>
-              </Link>
             </div>
           )}
         </div>
@@ -486,7 +460,7 @@ export default async function DemoDayPage({
             RSVP <span className="text-ink-pink">here</span>
           </SectionHead>
           <div className="mt-4 max-w-[640px]">
-            <Rsvp prefill={prefill} inviteCode={inviteCode} />
+            <Rsvp prefill={prefill} />
             <p className="mt-4 border-t-[1.5px] border-dotted border-ink-dark/40 pt-3 font-serif text-base">
               Questions, or need to cancel? Email{" "}
               <a
