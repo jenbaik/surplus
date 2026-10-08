@@ -270,8 +270,8 @@ const COL_SPAN: Record<number, string> = {
 };
 
 // 12-column rows: teams take 6, solo founders 4. Columns left over at the
-// end of a row go to that row's solo founders (else its teams), so every
-// row fills edge to edge and solos sharing a row get equal widths.
+// end of a row go to that row's team card (else are split among its
+// solos), so every row fills edge to edge and solo cards stay one size.
 function layoutSpans(projects: Project[]): string[] {
   const want = projects.map((p) => (p.founders.length > 1 ? 6 : 4));
   const spans = [...want];
@@ -281,8 +281,9 @@ function layoutSpans(projects: Project[]): string[] {
     const left = 12 - used;
     if (left <= 0) return;
     const row = Array.from({ length: end - start }, (_, k) => start + k);
-    const solos = row.filter((k) => want[k] === 4);
-    const takers = solos.length ? solos : row;
+    // Solo cards stay a third wide; a team card in the row takes the slack.
+    const teams = row.filter((k) => want[k] === 6);
+    const takers = teams.length ? teams : row;
     const each = Math.floor(left / takers.length);
     takers.forEach((k, n) => (spans[k] += each + (n < left % takers.length ? 1 : 0)));
   };
