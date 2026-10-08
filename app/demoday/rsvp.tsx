@@ -99,6 +99,11 @@ export function Rsvp({ prefill }: { prefill: Prefill | null }) {
         </p>
         {yes || maybe ? (
           <>
+            {maybe && (
+              <p className="m-0 mt-3 font-serif text-lg leading-snug">
+                Please confirm or update your RSVP soon.
+              </p>
+            )}
             <p className="mt-3 font-condensed text-xl font-bold uppercase tracking-wide">
               {yes ? "Put it in your calendar" : "Hold the date"}
             </p>

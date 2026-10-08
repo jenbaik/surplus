@@ -9,9 +9,9 @@ export const EVENT = {
   description:
     "The first Surplus cohort presents. Doors open 6:00pm, introduction by Austin 6:30pm, founder pitches 6:35pm, dinner & mingling 7:30pm.",
   url: "https://surplus.dev/demoday",
-  // Fri 23 Oct 2026, 6:00pm–11:00pm PT (PDT, UTC-7)
+  // Fri 23 Oct 2026, 6:00pm–9:00pm PT (PDT, UTC-7)
   startUtc: "20261024T010000Z",
-  endUtc: "20261024T060000Z",
+  endUtc: "20261024T040000Z",
   uid: "surplus-demo-day-2026@surplus.dev",
 } as const;
 

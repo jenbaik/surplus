@@ -441,14 +441,7 @@ export default async function DemoDayPage({
         <div className="mx-auto max-w-[1320px] px-14 max-bp:px-5">
           <SectionHead n="02">The Cohort</SectionHead>
           <p className="m-0 mt-2 font-mono text-xs uppercase tracking-widest text-ink-dark/70">
-            {shownProjects} projects · {shownFounders} founders · in presenting order · full
-            profiles at{" "}
-            <Link
-              href="/founders"
-              className="text-ink-blue underline underline-offset-2 hover:bg-ink-yellow hover:text-ink-dark hover:no-underline"
-            >
-              surplus.dev/founders
-            </Link>
+            {shownProjects} projects · {shownFounders} founders · in presenting order
           </p>
           {projects.length > 0 && (
             <div className="mt-4 grid grid-cols-12 border-l-[3px] border-t-[3px] border-ink-dark">
