@@ -218,9 +218,7 @@ function ProjectCard({ p, i, span }: { p: Project; i: number; span: string }) {
   const shared = team && p.cells.length === 1;
   return (
     <article
-      className={`flex flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper ${span} ${
-        team ? "max-bp:col-span-12" : "max-bp:col-span-6"
-      } max-sm:col-span-12`}
+      className={`flex flex-col border-b-[3px] border-r-[3px] border-ink-dark bg-paper ${span} max-bp:col-span-12`}
     >
       <div className="px-4 pt-3 font-mono text-[11px] uppercase tracking-widest text-ink-pink">
         No. {String(i + 1).padStart(2, "0")}
@@ -261,6 +259,8 @@ function ProjectCard({ p, i, span }: { p: Project; i: number; span: string }) {
 
 // Literal classes so Tailwind can see them.
 const COL_SPAN: Record<number, string> = {
+  1: "col-span-1",
+  2: "col-span-2",
   3: "col-span-3",
   4: "col-span-4",
   5: "col-span-5",
@@ -269,34 +269,26 @@ const COL_SPAN: Record<number, string> = {
   12: "col-span-12",
 };
 
-// 12-column rows: teams take 6, solo founders 4. Columns left over at the
-// end of a row go to that row's team card (else are split among its
-// solos), so every row fills edge to edge and solo cards stay one size.
-function layoutSpans(projects: Project[]): string[] {
-  const want = projects.map((p) => (p.founders.length > 1 ? 6 : 4));
-  const spans = [...want];
-  let start = 0;
+// 12-column rows: every team card is half a row and every solo card a
+// third. Space left at the end of a row is filled with a dark block.
+type Slot = { kind: "card"; idx: number; span: string } | { kind: "fill"; span: string };
+
+function layoutSlots(projects: Project[]): Slot[] {
+  const slots: Slot[] = [];
   let used = 0;
-  const closeRow = (end: number) => {
-    const left = 12 - used;
-    if (left <= 0) return;
-    const row = Array.from({ length: end - start }, (_, k) => start + k);
-    // Solo cards stay a third wide; a team card in the row takes the slack.
-    const teams = row.filter((k) => want[k] === 6);
-    const takers = teams.length ? teams : row;
-    const each = Math.floor(left / takers.length);
-    takers.forEach((k, n) => (spans[k] += each + (n < left % takers.length ? 1 : 0)));
+  const fill = () => {
+    const left = (12 - used) % 12;
+    if (left) slots.push({ kind: "fill", span: COL_SPAN[left] ?? "col-span-12" });
+    used = 0;
   };
-  want.forEach((w, k) => {
-    if (used + w > 12) {
-      closeRow(k);
-      start = k;
-      used = 0;
-    }
+  projects.forEach((p, idx) => {
+    const w = p.founders.length > 1 ? 6 : 4;
+    if (used + w > 12) fill();
+    slots.push({ kind: "card", idx, span: COL_SPAN[w] });
     used += w;
   });
-  closeRow(want.length);
-  return spans.map((n) => COL_SPAN[n] ?? "col-span-12");
+  fill();
+  return slots;
 }
 
 // -------------------- page --------------------
@@ -311,7 +303,7 @@ export default async function DemoDayPage({
   const founderCount = projects.reduce((n, p) => n + p.founders.length, 0);
   const shownProjects = projects.length || FALLBACK_COUNTS.projects;
   const shownFounders = projects.length ? founderCount : FALLBACK_COUNTS.founders;
-  const spans = layoutSpans(projects);
+  const slots = layoutSlots(projects);
 
   return (
     <>
@@ -446,9 +438,22 @@ export default async function DemoDayPage({
           </p>
           {projects.length > 0 && (
             <div className="mt-4 grid grid-cols-12 border-l-[3px] border-t-[3px] border-ink-dark">
-              {projects.map((p, idx) => (
-                <ProjectCard key={p.founders[0].name} p={p} i={idx} span={spans[idx]} />
-              ))}
+              {slots.map((slot, k) =>
+                slot.kind === "card" ? (
+                  <ProjectCard
+                    key={projects[slot.idx].founders[0].name}
+                    p={projects[slot.idx]}
+                    i={slot.idx}
+                    span={slot.span}
+                  />
+                ) : (
+                  <div
+                    key={`fill-${k}`}
+                    aria-hidden="true"
+                    className={`border-b-[3px] border-r-[3px] border-ink-dark bg-ink-dark max-bp:hidden ${slot.span}`}
+                  ></div>
+                )
+              )}
             </div>
           )}
         </div>
