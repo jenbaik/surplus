@@ -101,7 +101,8 @@ export function Rsvp({ prefill }: { prefill: Prefill | null }) {
           <>
             {maybe && (
               <p className="m-0 mt-3 font-serif text-lg leading-snug">
-                Please confirm or update your RSVP soon.
+                Thank you for your RSVP! Please confirm your attendance when you can. We would be
+                excited to have you.
               </p>
             )}
             <p className="mt-3 font-condensed text-xl font-bold uppercase tracking-wide">
@@ -134,7 +135,7 @@ export function Rsvp({ prefill }: { prefill: Prefill | null }) {
           </>
         ) : (
           <p className="mt-3 max-w-[52ch] font-serif text-lg leading-snug">
-            Thanks for letting us know. We\u2019ll send you what the cohort built afterwards.
+            Thanks for letting us know. We&rsquo;ll send your way a recording after the event.
           </p>
         )}
       </div>
