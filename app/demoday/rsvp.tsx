@@ -135,7 +135,7 @@ export function Rsvp({ prefill }: { prefill: Prefill | null }) {
           </>
         ) : (
           <p className="mt-3 max-w-[52ch] font-serif text-lg leading-snug">
-            Thanks for letting us know. We\u2019ll send you what the cohort built afterwards.
+            Thanks for letting us know. We&rsquo;ll send your way a recording after the event.
           </p>
         )}
       </div>
