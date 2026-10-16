@@ -388,7 +388,7 @@ export default async function DemoDayPage({
           <div className="relative z-[1] mt-7 grid grid-cols-3 gap-4 max-bp:gap-3 max-sm:grid-cols-1">
             <Stat n={String(shownProjects)} label="Projects presenting" detail={`${shownFounders} founders`} />
             <Stat n="8" label="Minutes per pitch" />
-            <Stat n="~40" label="Guests" detail="Invite only" />
+            <Stat n="~30" label="Guests" detail="Invite only" />
           </div>
 
           <div className="relative z-[1] mt-5 grid grid-cols-3 gap-x-8 gap-y-3 border-t-[1.5px] border-dotted border-ink-dark/40 pt-3 font-mono text-xs uppercase leading-normal tracking-widest max-sm:grid-cols-1">
