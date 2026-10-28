@@ -196,9 +196,6 @@ export default function Home() {
                     <span className="font-condensed text-[13px] font-bold uppercase leading-[1.15] tracking-wide">
                       Months of programming
                     </span>
-                    <span className="font-mono text-[13px] uppercase leading-[1.15] tracking-widest text-ink-blue">
-                      Aug 3 → Oct 23
-                    </span>
                   </span>
                 </div>
                 <div className="grid grid-cols-[110px_1fr] items-center gap-3.5 border-b-[1.5px] border-ink-dark p-3.5 last:border-b-0">
@@ -216,17 +213,23 @@ export default function Home() {
 
               <div className="flex justify-end pt-2 max-bp:justify-center">
                 <a
-                  href="/apply"
+                  href="https://airtable.com/appaxqJfxht7OronH/pag4BXQJgRUkdb6lQ/form"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Apply now"
+                  aria-label="Express your interest in a future round"
                   className="relative inline-block h-[230px] w-[230px] -rotate-6 cursor-pointer no-underline transition-transform duration-200 ease-out hover:-rotate-3 hover:scale-105 active:rotate-[-2deg] active:scale-[0.99] max-bp:h-[190px] max-bp:w-[190px]"
                 >
                   <span className="absolute inset-0 z-[-1] translate-x-2 translate-y-2 rounded-full bg-ink-blue opacity-90 mix-blend-multiply"></span>
                   <span className="absolute inset-0 grid place-items-center rounded-full bg-ink-pink text-center text-paper shadow-[inset_0_0_0_4px_var(--color-paper),inset_0_0_0_6px_var(--color-ink-pink)]">
-                    <span className="flex flex-col items-center gap-1.5">
-                      <span className="font-display text-5xl leading-none tracking-wide max-bp:text-4xl">APPLY</span>
-                      <span className="font-mono text-sm uppercase tracking-widest">By July 10th</span>
+                    <span className="flex flex-col items-center gap-1.5 px-6">
+                      <span className="font-display text-[26px] leading-[0.95] tracking-wide max-bp:text-xl">
+                        EXPRESS
+                        <br />
+                        YOUR
+                        <br />
+                        INTEREST
+                      </span>
+                      <span className="font-mono text-sm uppercase tracking-widest max-bp:text-xs">In a future round</span>
                       <span className="mt-0.5 font-display text-xl tracking-wider">☞ ☞ ☞</span>
                     </span>
                   </span>
@@ -547,7 +550,7 @@ export default function Home() {
         <div className="relative mx-auto max-w-[1320px] px-14 max-bp:px-5">
           <div className="grid grid-cols-[auto_1fr] items-end gap-7 border-b-[3px] border-ink-dark pb-[18px] pt-18 max-bp:gap-4 max-bp:pb-3.5 max-bp:pt-12">
             <span className="font-display text-8xl leading-none text-ink-pink misreg-blue max-bp:text-6xl">03</span>
-            <h2 className="font-condensed text-6xl font-bold uppercase leading-none max-bp:text-3xl">Timeline</h2>
+            <h2 className="font-condensed text-6xl font-bold uppercase leading-none max-bp:text-3xl">Timeline: What Batch 1 looked like</h2>
           </div>
 
           <div className="mt-8 border-t-[3px] border-ink-dark">
