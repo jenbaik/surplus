@@ -554,32 +554,17 @@ export default function Home() {
           </div>
 
           <div className="mt-8 border-t-[3px] border-ink-dark">
-            <div className="grid grid-cols-[160px_60px_1fr_240px] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
+            <div className="grid grid-cols-[160px_60px_1fr] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
               <span className="font-display text-xl leading-none text-ink-pink max-bp:text-lg">Jun 12</span>
               <span className="h-7 w-7 justify-self-center rounded-full bg-ink-pink shadow-[0_0_0_4px_var(--color-paper),0_0_0_5.5px_var(--color-ink-pink)]"></span>
               <div>
                 <div className="font-condensed text-3xl font-bold uppercase leading-tight max-bp:text-xl">
                   Applications Open
                 </div>
-                <div className="mt-1.5 font-serif text-sm italic text-ink-dark">
-                  Apply via{" "}
-                  <a
-                    href="/apply"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-ink-blue underline underline-offset-2 hover:bg-ink-yellow hover:text-ink-dark hover:no-underline"
-                  >
-                    this form
-                  </a>
-                  .
-                </div>
               </div>
-              <span className="text-right font-mono text-sm uppercase tracking-widest text-ink-blue max-bp:hidden [&_b]:text-ink-pink">
-                <b>Open now</b>
-              </span>
             </div>
 
-            <div className="grid grid-cols-[160px_60px_1fr_240px] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
+            <div className="grid grid-cols-[160px_60px_1fr] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
               <span className="font-display text-xl leading-none text-ink-pink max-bp:text-lg">Jun 24</span>
               <span className="h-7 w-7 justify-self-center rounded-full bg-ink-pink shadow-[0_0_0_4px_var(--color-paper),0_0_0_5.5px_var(--color-ink-pink)]"></span>
               <div>
@@ -590,12 +575,9 @@ export default function Home() {
                   Apply early for priority review; rolling video interviews.
                 </div>
               </div>
-              <span className="text-right font-mono text-sm uppercase tracking-widest text-ink-blue max-bp:hidden [&_b]:text-ink-pink">
-                <b>Priority</b>
-              </span>
             </div>
 
-            <div className="grid grid-cols-[160px_60px_1fr_240px] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
+            <div className="grid grid-cols-[160px_60px_1fr] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
               <span className="font-display text-xl leading-none text-ink-pink max-bp:text-lg">Jul 10</span>
               <span className="h-7 w-7 justify-self-center rounded-full bg-ink-pink shadow-[0_0_0_4px_var(--color-paper),0_0_0_5.5px_var(--color-ink-pink)]"></span>
               <div>
@@ -606,12 +588,9 @@ export default function Home() {
                   Final deadline; rolling video interviews continue.
                 </div>
               </div>
-              <span className="text-right font-mono text-sm uppercase tracking-widest text-ink-blue max-bp:hidden [&_b]:text-ink-pink">
-                <b>Final deadline</b>
-              </span>
             </div>
 
-            <div className="grid grid-cols-[160px_60px_1fr_240px] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
+            <div className="grid grid-cols-[160px_60px_1fr] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
               <span className="font-display text-xl leading-none text-ink-pink max-bp:text-lg">Aug 3</span>
               <span className="h-7 w-7 justify-self-center rounded-full bg-ink-pink shadow-[0_0_0_4px_var(--color-paper),0_0_0_5.5px_var(--color-ink-pink)]"></span>
               <div>
@@ -623,12 +602,9 @@ export default function Home() {
                   <li>10 weeks of mentorship, dinners with speakers</li>
                 </ul>
               </div>
-              <span className="text-right font-mono text-sm uppercase tracking-widest text-ink-blue max-bp:hidden [&_b]:text-ink-pink">
-                Cohort begins
-              </span>
             </div>
 
-            <div className="grid grid-cols-[160px_60px_1fr_240px] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
+            <div className="grid grid-cols-[160px_60px_1fr] items-center gap-6 border-b-[3px] border-ink-dark py-[22px] max-bp:grid-cols-[88px_24px_1fr] max-bp:gap-3.5">
               <span className="font-display text-xl leading-none text-ink-pink max-bp:text-lg">Oct 23</span>
               <span className="h-7 w-7 justify-self-center rounded-full bg-ink-pink shadow-[0_0_0_4px_var(--color-paper),0_0_0_5.5px_var(--color-ink-pink)]"></span>
               <div>
@@ -639,9 +615,6 @@ export default function Home() {
                   Pitch to an audience of angels, VCs and philanthropic funders.
                 </div>
               </div>
-              <span className="text-right font-mono text-sm uppercase tracking-widest text-ink-blue max-bp:hidden [&_b]:text-ink-pink">
-                <b>The grand finale</b>
-              </span>
             </div>
           </div>
         </div>
