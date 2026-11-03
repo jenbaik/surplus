@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Fragment } from "react";
+import { DOC_COPY, type Block, type DocEntry } from "@/lib/demoday/copy";
 import { loadPublicFounders, prettyUrl, type PublicFounder } from "@/lib/founders";
 
 // Statically prerendered, refreshed from Airtable every 5 minutes.
@@ -11,6 +12,85 @@ export const metadata: Metadata = {
   description:
     "The founders of Surplus cohort 1 — building software for massive public good. In residence at Mox, San Francisco, July–October 2026.",
 };
+
+// -------------------- founder-written copy --------------------
+
+// Founders who wrote a "What have founders been making" section in Notion
+// show that copy (lib/demoday/copy.ts, the same text as /demoday) instead of
+// their application. Everyone else keeps their application text.
+
+// Cofounders who each wrote their own section are listed as separate
+// founders (e.g. Francisco and Christine), not as one team.
+function splitSeparateWriters(groups: PublicFounder[][]): PublicFounder[][] {
+  return groups.flatMap((g) =>
+    g.length > 1 && g.every((f) => DOC_COPY[f.name] && !DOC_COPY[f.name].shared)
+      ? g.map((f) => [f])
+      : [g]
+  );
+}
+
+// A team's shared section, if they wrote one together.
+const sharedDoc = (team: PublicFounder[]): DocEntry | undefined =>
+  team.map((f) => DOC_COPY[f.name]).find((d) => d?.shared);
+
+// Names as the doc writes them (e.g. "Phil Palmer" for "Dr. Phil Palmer").
+function docName(name: string, doc?: DocEntry): string {
+  return doc?.names?.find((n) => name.endsWith(n)) ?? name;
+}
+
+// `*word*` renders in italics (the founders' own emphasis).
+function Rich({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(\*[^*]+\*)/g).map((part, i) =>
+        part.startsWith("*") && part.endsWith("*") && part.length > 2 ? (
+          <em key={i}>{part.slice(1, -1)}</em>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
+
+const LINK =
+  "font-mono text-[11px] uppercase tracking-widest text-ink-blue underline decoration-1 underline-offset-2 hover:bg-ink-yellow hover:text-ink-dark hover:no-underline";
+
+// Project name, links and full bio from the doc.
+function DocCopy({ doc }: { doc: DocEntry }) {
+  return (
+    <>
+      <p className="mt-2 text-pretty font-serif text-[15px] italic leading-snug text-ink-dark">
+        <Rich text={doc.tagline} />
+      </p>
+      {doc.links.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+          {doc.links.map((u) => (
+            <a key={u} href={u} target="_blank" rel="noopener noreferrer" className={LINK}>
+              ✦ {prettyUrl(u)}
+            </a>
+          ))}
+        </div>
+      )}
+      <div className="mt-2.5 flex flex-col gap-2 border-t-[1.5px] border-dotted border-ink-dark/40 pt-2 text-pretty font-serif text-sm leading-snug">
+        {doc.blocks.map((b: Block) => (
+          <div key={b.text}>
+            <p>
+              <Rich text={b.text} />
+            </p>
+            {b.items && (
+              <ul className="mt-1 list-none [&_li]:relative [&_li]:py-0.5 [&_li]:pl-5 [&_li]:before:absolute [&_li]:before:left-0 [&_li]:before:text-xs [&_li]:before:text-ink-pink [&_li]:before:content-['✦']">
+                {b.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
 
 // -------------------- pieces --------------------
 
@@ -40,11 +120,21 @@ function Expand({ label, text }: { label: string; text: string }) {
   );
 }
 
-function FounderCell({ f, className = "" }: { f: PublicFounder; className?: string }) {
+function FounderCell({
+  f,
+  className = "",
+  shared,
+}: {
+  f: PublicFounder;
+  className?: string;
+  // The team's shared section: name it here, but the copy renders once below the team.
+  shared?: DocEntry;
+}) {
+  const doc = shared ? undefined : DOC_COPY[f.name];
   return (
-    <div className={`flex min-w-0 flex-col px-4 pb-4 pt-3.5 ${className}`}>
+    <div className={`flex min-w-0 flex-col px-4 pt-3.5 ${shared ? "pb-1" : "pb-4"} ${className}`}>
       <h3 className="text-balance font-condensed text-[22px] font-bold uppercase leading-[0.95] tracking-wide">
-        {f.name}
+        {docName(f.name, shared ?? doc)}
         {f.pending && (
           // Absolutely positioned so the oversized glyph never shifts the
           // name's line box.
@@ -69,12 +159,13 @@ function FounderCell({ f, className = "" }: { f: PublicFounder; className?: stri
           ☞ {prettyUrl(f.about)}
         </a>
       )}
-      {f.ideaShort && (
+      {doc && <DocCopy doc={doc} />}
+      {!doc && !shared && f.ideaShort && (
         <p className="mt-2 text-pretty font-serif text-[15px] italic leading-snug text-ink-dark">
           {f.ideaShort}
         </p>
       )}
-      {f.ideaLinks.length > 0 && (
+      {!doc && !shared && f.ideaLinks.length > 0 && (
         <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
           {f.ideaLinks.map((u) => (
             <a
@@ -89,8 +180,8 @@ function FounderCell({ f, className = "" }: { f: PublicFounder; className?: stri
           ))}
         </div>
       )}
-      {f.ideaLong && <Expand label="Full idea" text={f.ideaLong} />}
-      {f.otherIdeas && <Expand label="Other ideas" text={f.otherIdeas} />}
+      {!doc && !shared && f.ideaLong && <Expand label="Full idea" text={f.ideaLong} />}
+      {!doc && !shared && f.otherIdeas && <Expand label="Other ideas" text={f.otherIdeas} />}
     </div>
   );
 }
@@ -106,7 +197,7 @@ function GroupLabel({ children }: { children: React.ReactNode }) {
 // -------------------- page --------------------
 
 export default async function FoundersPage() {
-  const groups = await loadPublicFounders();
+  const groups = splitSeparateWriters(await loadPublicFounders());
   const founderCount = groups.reduce((n, g) => n + g.length, 0);
   const teams = groups.filter((g) => g.length > 1);
   const solos = groups.filter((g) => g.length === 1);
@@ -114,6 +205,8 @@ export default async function FoundersPage() {
   // Team cards span 2 of the 4 desktop columns; square off the frame when the
   // team rows don't fill the last row exactly.
   const teamFillerCols = (4 - ((teams.length * 2) % 4)) % 4;
+  // Same for the last row of solo founders.
+  const soloFillerCols = (4 - (solos.length % 4)) % 4;
 
   return (
     <>
@@ -160,10 +253,15 @@ export default async function FoundersPage() {
                           </span>
                         </div>
                       )}
-                      <FounderCell f={f} className="flex-1" />
+                      <FounderCell f={f} className="flex-1" shared={sharedDoc(team)} />
                     </Fragment>
                   ))}
                 </div>
+                {sharedDoc(team) && (
+                  <div className="flex min-w-0 flex-col px-4 pb-4">
+                    <DocCopy doc={sharedDoc(team)!} />
+                  </div>
+                )}
               </article>
             ))}
             {teamFillerCols > 0 && (
@@ -183,6 +281,13 @@ export default async function FoundersPage() {
                 <FounderCell f={f} />
               </article>
             ))}
+            {soloFillerCols > 0 && (
+              <div
+                aria-hidden="true"
+                className="border-b-[3px] border-r-[3px] border-ink-dark bg-paper-deep max-bp:hidden"
+                style={{ gridColumn: `span ${soloFillerCols} / span ${soloFillerCols}` }}
+              ></div>
+            )}
           </div>
 
           {anyPending && (
