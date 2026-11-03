@@ -535,7 +535,7 @@ export default function Home() {
             <div className="relative flex min-h-[220px] flex-col border-[3px] border-ink-dark bg-ink-yellow px-[18px] pb-5 pt-[22px] max-bp:min-h-0">
               <div className="font-mono text-sm uppercase tracking-widest opacity-70">No. 06 — Demo Day</div>
               <div className="mt-2.5 font-condensed text-3xl font-bold uppercase leading-none tracking-wide max-bp:text-xl">
-                Demo Day, <span className="text-ink-pink">Oct 23</span>
+                Demo Day
               </div>
               <div className="mt-auto pt-3 font-serif text-sm italic leading-snug">
                 Pitch to aligned VCs and philanthropic funders.
